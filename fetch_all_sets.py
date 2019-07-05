@@ -9,7 +9,7 @@ def card_to_json(c):
 
 if __name__ == '__main__':
     sets = ['MH1', 'WAR', 'RNA', 'UMA', 'GRN',
-            'M19', 'DOM', 'RIX', 'XLN)']
+            'M19', 'DOM', 'RIX', 'XLN', 'M20']
     processed_sets = {}
     for s in sets:
         start = time()
