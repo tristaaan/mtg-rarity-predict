@@ -9,6 +9,7 @@ class mCard(object):
         self.rarity = json_card['rarity']
         self.text   = json_card['text']
         self.original_text = json_card['original_text']
+        self.supertypes = json_card['supertypes']
         self.types     = json_card['types']
         self.cmc       = json_card['cmc']
         self.mana_cost = json_card['mana_cost']
@@ -81,6 +82,7 @@ def process_set(card_set, df):
 
         df = df.append({'name': c.name, 'rarity': c.rarity.lower(),
                        'text': description, 'type': joined_type,
+                       'legendary': 'Legendary' in c.supertypes,
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
                        ignore_index=True)
     return df
