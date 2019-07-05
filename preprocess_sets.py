@@ -20,6 +20,8 @@ def strip_text(val):
     ret = re.sub(r' +', ' ', re.sub(r'</?i>|[\(\),.:\n—•"]', ' ', val.lower()))
     ret = ret.replace(u'\u2212', '-')
     ret = ret.replace('{t}', 'tap')
+    if re.search(r'[+-]\d+\/[+-]\d+', ret) is not None:
+        ret = counter_replace(ret)
     if '{' in ret:
         mana_groups = re.finditer(r'(\{[\d\w ]+\})+', ret)
         for g in mana_groups:
@@ -33,6 +35,18 @@ def join_type(val):
         return None
     return joined
 
+def counter_replace(ability):
+    ability = replace_instances(ability, r'(\+[\dx]+/\+[\dx]+)', 'enhance')
+    ability = replace_instances(ability, r'(-[\dx]+/-[\dx]+)', 'weaken')
+    ability = replace_instances(ability, r'(\+[\dx]+/-[\dx]+)', 'strengthen')
+    ability = replace_instances(ability, r'(-[\dx]+/\+[\dx]+)', 'toughen')
+    return ability
+
+def replace_instances(ability, regex, replacement):
+    groups = re.finditer(regex, ability)
+    for g in groups:
+        ability = ability.replace(g.group(), replacement)
+    return ability
 
 def cost_to_cmc(cost):
     cost_matches = re.findall(r'\{([\w\d ]+)\}', cost)
