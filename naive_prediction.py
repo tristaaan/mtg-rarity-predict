@@ -1,3 +1,4 @@
+import argparse
 import itertools
 import numpy as np
 import pandas as pd
@@ -5,6 +6,8 @@ import matplotlib.pyplot as plt
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.svm import LinearSVC
 
 def get_train_test_split(df):
     '''
@@ -81,17 +84,41 @@ def plot_confusion_matrix(cm, labels):
     fig.subplots_adjust(bottom=0.2)
     fig.savefig('naive_confusion_matrix.png')
 
-if __name__ == '__main__':
-    cards = pd.read_csv('processed_sets.csv', sep='\t')
-    train_values, train_labels, test_values, test_labels = get_train_test_split(cards)
+
+def mlp_classification(train_values, train_labels):
     mlp = MLPClassifier(solver='adam', activation='tanh',
                         hidden_layer_sizes=(50), max_iter=5000,
                         random_state=123)
     mlp.fit(train_values, train_labels)
+    return mlp
 
-    predicted_labels = mlp.predict(test_values)
-    mlp_acc = accuracy_score(test_labels, predicted_labels)
-    mlp_cm = confusion_matrix(test_labels, predicted_labels)
+def svm_classification(train_values, train_labels):
+    clf = LinearSVC()
+    svm = CalibratedClassifierCV(clf)
+    svm.fit(train_values, train_labels)
+    return svm
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Naive card predicion')
+    parser.add_argument('-classifier', '-c', help='choose classifier',
+                        default='mlp')
+    args = parser.parse_args()
+    kw = vars(args)
+
+    cards = pd.read_csv('processed_sets.csv', sep='\t')
+    train_values, train_labels, test_values, test_labels = \
+        get_train_test_split(cards)
+    if kw['classifier'] == 'mlp':
+        print('classifying with MLP...')
+        model = mlp_classification(train_values, train_labels)
+    else:
+        print('classifying with SVM...')
+        model = svm_classification(train_values, train_labels)
+
+    predicted_labels = model.predict(test_values)
+    acc = accuracy_score(test_labels, predicted_labels)
+    cm = confusion_matrix(test_labels, predicted_labels)
 
     labels = np.unique(cards.loc[:,['rarity']].values).tolist()
-    plot_confusion_matrix(mlp_cm, labels)
+    plot_confusion_matrix(cm, labels)
+    print('accuracy with %s: %0.2f' % (kw['classifier'].upper(), acc))
