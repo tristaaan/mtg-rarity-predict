@@ -18,10 +18,12 @@ class mCard(object):
 def strip_text(val):
     if val == None:
         return ''
-    ret = re.sub(r' +', ' ', re.sub(r'</?i>|[\(\),.:\n—•"]', ' ', val.lower()))
+    # remove punctuation
+    ret = re.sub(r' +', ' ', re.sub(r'</?i>|[\(\),.:\n—•"\']', ' ', val.lower()))
     ret = ret.replace(u'\u2212', '-')
     ret = ret.replace('{t}', 'tap')
-    if re.search(r'[+-]\d+\/[+-]\d+', ret) is not None:
+    # replace or remove counters 1/1, +1/+1, -1/+1, etc
+    if re.search(r'[+-]?[\dx]+\/[+-]?[\dx]+', ret) is not None:
         ret = counter_replace(ret)
     if '{' in ret:
         mana_groups = re.finditer(r'(\{[\d\w ]+\})+', ret)
@@ -37,10 +39,16 @@ def join_type(val):
     return joined
 
 def counter_replace(ability):
+    # +1/+1
     ability = replace_instances(ability, r'(\+[\dx]+/\+[\dx]+)', 'enhance')
+    # -1/-1
     ability = replace_instances(ability, r'(-[\dx]+/-[\dx]+)', 'weaken')
+    # +1/-1
     ability = replace_instances(ability, r'(\+[\dx]+/-[\dx]+)', 'strengthen')
+    # -1/+1
     ability = replace_instances(ability, r'(-[\dx]+/\+[\dx]+)', 'toughen')
+    # 1/1
+    ability = replace_instances(ability, r'([\dx]+/[\dx]+)', '')
     return ability
 
 def replace_instances(ability, regex, replacement):
