@@ -25,7 +25,7 @@ def get_train_test_split(df):
     # num_of_train_inputs = int(rows * 0.8)
     num_of_train_inputs = int(get_min_rarity_count(cards) * 0.8)
     type_cmc = ['type', 'cmc', 'legendary']
-    full_inputs = ['type', 'C', 'R', 'U', 'B', 'G', 'W', 'X', 'S',  \
+    full_inputs = ['type', 'C', 'R', 'U', 'B', 'G', 'W', 'X',  \
                    'B/G', 'B/R', 'G/U', 'G/W', 'R/G', 'R/W', 'U/B', \
                    'U/R', 'W/B', 'W/U', 'legendary']
     inputs = full_inputs

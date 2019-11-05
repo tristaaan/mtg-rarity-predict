@@ -34,7 +34,9 @@ def strip_text(val):
 
 def join_type(val):
     joined = ' '.join(val).lower()
-    if 'land' in joined or 'gate' in joined:
+    if 'land' in joined or \
+        'gate' in joined or \
+        'planeswalker' in joined:
         return None
     return joined
 
@@ -66,7 +68,7 @@ def cost_to_cmc(cost):
     return str(cmc)
 
 
-mana_types = ['C', 'R', 'U', 'B', 'G', 'W', 'X', 'S', \
+mana_types = ['C', 'R', 'U', 'B', 'G', 'W', 'X', \
     'B/G', 'B/R', 'G/U', 'G/W', 'R/G', 'R/W', 'U/B', 'U/R', 'W/B', 'W/U']
 
 def mana_cost_to_dict(cost):
@@ -102,5 +104,6 @@ if __name__ == '__main__':
         columns = ['name', 'rarity', 'text', 'type', 'cmc'] + mana_types
         df = pd.DataFrame(columns=columns)
         for k in set_keys:
+            print('preprocessing %s' % k)
             df = process_set(sets[k], df)
         df.to_csv('processed_sets.csv', sep='\t')
