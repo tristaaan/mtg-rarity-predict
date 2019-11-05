@@ -8,8 +8,14 @@ def card_to_json(c):
     return c
 
 if __name__ == '__main__':
-    sets = ['MH1', 'WAR', 'RNA', 'UMA', 'GRN',
-            'M19', 'DOM', 'RIX', 'XLN', 'M20']
+    # Expansion and core sets back until October 2015
+    # https://mtg.gamepedia.com/Core_set
+    # https://mtg.gamepedia.com/Set#List_of_Magic_expansions_and_sets
+    sets = ['BFZ', 'OGW', 'SOI', 'EMN', # no core set, Magic Origins (ORI)
+            'KLD', 'AER', 'AKH', 'HOU', # no core set
+            'XLN', 'RIX', 'DOM', 'M19',
+            'GRN', 'RNA', 'WAR', 'M20',
+            'ELD'] #_     _       M21
     processed_sets = {}
     for s in sets:
         start = time()
