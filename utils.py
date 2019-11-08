@@ -37,7 +37,7 @@ def get_train_test_split(df, inputs):
     # Split train and test datasets into features/labels
     if 'text' in inputs:
         train_values, train_labels = text_split(train_df, inputs, spell_types)
-        test_values, test_labels = text_split(test_df, inputs, spell_types)  
+        test_values, test_labels = text_split(test_df, inputs, spell_types)
     else:
         train_values, train_labels = split(train_df, inputs, spell_types)
         test_values, test_labels = split(test_df, inputs, spell_types)
@@ -105,9 +105,10 @@ def plot_confusion_matrix(cm, labels, method):
                  horizontalalignment="center",
                  color="white" if cm[i, j] > 0.55 else "black")
 
+    fname = 'confusion_matrix-%s.png' % method
     plt.tight_layout()
     plt.ylabel('True rarity')
     plt.xlabel('Predicted rarity\naccuracy={:0.2f}; misclass={:0.2f}'.format(accuracy, misclass))
     fig.subplots_adjust(bottom=0.1, left=0.2)
-    fig.savefig('naive_confusion_matrix-%s.png' % method)
-    
+    fig.savefig(fname)
+    print('Confusion matrix written as: "%s"' % fname)
