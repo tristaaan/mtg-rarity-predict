@@ -1,14 +1,16 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
+import os
 
-import collections
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from keras.callbacks import ModelCheckpoint
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from keras.models import Sequential
-from keras.layers import Dense, Embedding, LSTM
-from utils import get_train_test_split
+
+from sklearn.metrics import confusion_matrix
+from utils import get_train_test_split, plot_confusion_matrix
+from rnn_model import create_model
 
 import tensorflow as tf
 from tensorflow.python.client import device_lib
@@ -26,19 +28,11 @@ def plot_graphs(history, string):
     plt.legend([string, 'val_'+string])
     plt.show()
 
-def create_model(maxlen):
-    model = Sequential()
-    model.add(Embedding(input_dim=maxlen, output_dim=64))
-    model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
-    model.add(Dense(4, activation='sigmoid'))
-
-    model.summary()
-    model.compile(
-        loss='binary_crossentropy', 
-        optimizer='adam',
-        metrics=['accuracy']
-    )
-    return model
+def make_results_folder(name):
+    try:
+        os.mkdir(name)
+    except FileExistsError:
+        pass
 
 if __name__ == '__main__':
     batch_size = 32
@@ -50,15 +44,26 @@ if __name__ == '__main__':
     tokenizer.fit_on_texts(x_train)
     print('Found %s unique tokens.' % len(tokenizer.word_index))
 
+    # tokenize train and test sets
     x_train = tokenizer.texts_to_sequences(x_train)
-    x_test  = tokenizer.texts_to_sequences(x_test)
     x_train = pad_sequences(x_train, maxlen=maxlen)
+
+    x_test  = tokenizer.texts_to_sequences(x_test)
     x_test = pad_sequences(x_test, maxlen=maxlen)
+
+    make_results_folder('tmp')
+    checkpointer = ModelCheckpoint(filepath=os.path.join('tmp','weights-rnn.hdf5'),
+        monitor='loss',
+        verbose=1,
+        save_best_only=True
+    )
 
     model = create_model(maxlen)
     model.fit(x_train, y_train,
         batch_size=batch_size,
-        epochs=10)
+        epochs=10,
+        callbacks=[checkpointer]
+    )
     score, acc = model.evaluate(x_test, y_test,
                                 batch_size=batch_size)
     print('\nscore:    %.02f' % score)
