@@ -6,14 +6,14 @@ from keras.preprocessing.text import Tokenizer
 from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, plot_confusion_matrix
 from rnn_model import create_model
-from rnn_constants import MAXLEN, SORTED_RARITIES
+from rnn_constants import MAXLEN, RARITIES
 
 def visualize(x_test, y_test, model):
     # viz accuracy
     print('predicting test set...')
     y_pred = model.predict_classes(x_test)
     conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred)
-    plot_confusion_matrix(conf_mat, SORTED_RARITIES, 'RNN')
+    plot_confusion_matrix(conf_mat, RARITIES, 'RNN')
 
 if __name__ == '__main__':
     # load model

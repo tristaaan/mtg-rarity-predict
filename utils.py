@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
+from rnn_constants import RARITIES
 
 def get_train_test_split(df, inputs):
     '''
@@ -15,17 +16,21 @@ def get_train_test_split(df, inputs):
     # Shuffle data frame
     df = df.sample(frac=1, random_state=rs)
 
+    train_split = 0.8
+    test_split = 1 - train_split
+    assert(train_split < 1, 'Train split must be less than 1')
+
     # Select same number of samples per class for train set, remaining go to test set
     # num_of_train_inputs = int(rows * 0.8)
-    num_of_train_inputs = int(get_min_rarity_count(df) * 0.8)
-    print(num_of_train_inputs)
+    min_rarity_count = get_min_rarity_count(df)
+    train_count = int(min_rarity_count * train_split)
+    test_count  = int(min_rarity_count * test_split)
+    print('train: %d, test: %d' % (train_count, test_count))
 
     train_df, test_df = (pd.DataFrame(columns=inputs), pd.DataFrame(columns=inputs))
-    rarities = np.unique(df.loc[:,['rarity']].values)
-    print(rarities)
-    for rarity in rarities:
-        train_df = train_df.append(df[:num_of_train_inputs].loc[df['rarity'] == rarity, inputs+['rarity']], ignore_index=True)
-        test_df  =  test_df.append(df[num_of_train_inputs:].loc[df['rarity'] == rarity, inputs+['rarity']], ignore_index=True)
+    for rarity in RARITIES:
+        train_df = train_df.append(df.loc[df['rarity'] == rarity, inputs+['rarity']][:train_count], ignore_index=True)
+        test_df  =  test_df.append(df.loc[df['rarity'] == rarity, inputs+['rarity']][train_count:train_count+test_count], ignore_index=True)
 
     # Shuffle data frames (because they were appended in an orderly per label fashion)
     train_df = train_df.sample(frac=1, random_state=rs)
@@ -37,10 +42,10 @@ def get_train_test_split(df, inputs):
     # Split train and test datasets into features/labels
     if 'text' in inputs:
         train_values, train_labels = text_split(train_df, inputs, spell_types)
-        test_values, test_labels = text_split(test_df, inputs, spell_types)
+        test_values, test_labels   = text_split(test_df, inputs, spell_types)
     else:
         train_values, train_labels = split(train_df, inputs, spell_types)
-        test_values, test_labels = split(test_df, inputs, spell_types)
+        test_values, test_labels   = split(test_df, inputs, spell_types)
 
     return (train_values, train_labels, test_values, test_labels)
 
@@ -56,8 +61,7 @@ def text_split(df, columns, spell_types):
 
 def label_array(rarity):
     ret = [0, 0, 0, 0]
-    rarities = ['common', 'mythic', 'rare', 'uncommon']
-    ind = rarities.index(rarity)
+    ind = RARITIES.index(rarity)
     ret[ind] = 1
     return ret
 
