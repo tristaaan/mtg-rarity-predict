@@ -6,12 +6,18 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.svm import LinearSVC
 
 from utils import get_train_test_split, plot_confusion_matrix
 
+
+def rf_classification(train_values, train_labels):
+    rf = RandomForestClassifier(n_estimators=100, random_state=123)
+    rf.fit(train_values, train_labels)
+    return rf
 
 def mlp_classification(train_values, train_labels):
     mlp = MLPClassifier(solver='adam', activation='tanh',
@@ -47,10 +53,15 @@ if __name__ == '__main__':
     if method == 'mlp':
         print('classifying with MLP...')
         model = mlp_classification(train_values, train_labels)
-    else:
+    elif method == 'rf':
+        print('classifying with MLP...')
+        model = rf_classification(train_values, train_labels)
+    elif method == 'svm':
         print('classifying with SVM...')
         model = svm_classification(train_values, train_labels)
-
+    else:
+        print('Unrecognized classifier: "%s"' % method)
+        exit()
 
     predicted_labels = model.predict(test_values)
     sorted_labels = ['common', 'uncommon', 'rare', 'mythic']
