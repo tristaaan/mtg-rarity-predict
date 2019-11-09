@@ -128,4 +128,8 @@ if __name__ == '__main__':
         for k in set_keys:
             print('preprocessing %s' % k)
             df = process_set(sets[k], df)
+        rare_counts = df['rarity'].value_counts(dropna=False)
+        print('rarities:', rare_counts)
+        type_counts = df['type'].value_counts(dropna=False)
+        print('types:', type_counts)
         df.to_csv('processed_sets.csv', sep='\t')
