@@ -6,13 +6,13 @@ from keras.preprocessing.text import Tokenizer
 from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, plot_confusion_matrix
 from rnn_model import create_model
-from rnn_constants import MAXLEN, RARITIES
+from rnn_constants import MAXLEN, RARITIES, FULL_INPUTS
 
-def visualize(x_test, y_test, model):
+def visualize(m_test, x_test, y_test, model):
     # viz accuracy
     print('predicting test set...')
-    y_pred = model.predict_classes(x_test)
-    conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred)
+    y_pred = model.predict([m_test, x_test])
+    conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     plot_confusion_matrix(conf_mat, RARITIES, 'RNN')
 
 if __name__ == '__main__':
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     # load data
     cards = pd.read_csv('processed_sets.csv', sep='\t')
 
+    _, _, m_test, _ = get_train_test_split(cards, FULL_INPUTS)
     _, _, x_test, y_test = get_train_test_split(cards, ['text'])
 
     # tokenize test set
@@ -32,4 +33,4 @@ if __name__ == '__main__':
     x_test = tokenizer.texts_to_sequences(x_test)
     x_test = pad_sequences(x_test, maxlen=MAXLEN)
 
-    visualize(x_test, y_test, model)
+    visualize(m_test, x_test, y_test, model)

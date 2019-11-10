@@ -54,7 +54,6 @@ def text_split(df, columns, spell_types):
     # print(df[columns].values.tolist()[0:5])
     values = list(map(lambda x: x[0].split(), df[columns].values.tolist()))
     labels = df['rarity'].values.ravel()
-    # print(labels[0:5])
     labels = np.array(list(map(label_array, labels)))
     return (values, labels)
 
