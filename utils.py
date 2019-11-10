@@ -7,7 +7,7 @@ import matplotlib.colors as colors
 
 from rnn_constants import RARITIES
 
-def get_train_test_split(df, inputs):
+def get_train_test_split(df, inputs, train_split=0.8):
     '''
     Split data into training and test sets
     '''
@@ -16,9 +16,8 @@ def get_train_test_split(df, inputs):
     # Shuffle data frame
     df = df.sample(frac=1, random_state=rs)
 
-    train_split = 0.8
-    test_split = 1 - train_split
     assert(train_split < 1, 'Train split must be less than 1')
+    test_split = 1 - train_split
 
     # Select same number of samples per class for train set, remaining go to test set
     # num_of_train_inputs = int(rows * 0.8)
