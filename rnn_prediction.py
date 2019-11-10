@@ -22,13 +22,14 @@ config = tf.ConfigProto()
 # config.gpu_options.allocator_type = 'BFC'
 tf.Session(config = config)
 
-def plot_graphs(history, string):
-    plt.plot(history.history[string])
-    plt.plot(history.history['val_'+string], '')
+def plot_graphs(history):
+    fig = plt.figure(figsize=(8,5))
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'], '')
     plt.xlabel("Epochs")
-    plt.ylabel(string)
-    plt.legend([string, 'val_'+string])
-    plt.show()
+    plt.ylabel('loss')
+    plt.legend(['loss', 'val_loss'])
+    fig.savefig('rnn-training-curve.png')
 
 def make_results_folder(name):
     try:
@@ -37,21 +38,38 @@ def make_results_folder(name):
         pass
 
 if __name__ == '__main__':
-    batch_size = 32
+    batch_size = 48
 
     # load data
     cards = pd.read_csv('processed_sets.csv', sep='\t')
-    manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS)
-    x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'])
+
+    # split data
+    train_split = 0.7
+    manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS, train_split)
+    x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'], train_split)
+
+    # split the test set into validation and test sets
+    frac = int(((1-train_split) / 2) * len(x_test))
+    x_valid = x_test[:frac]
+    y_valid = y_test[:frac]
+
+    manas_valid = manas_test[:frac]
+    manas_test = manas_test[frac:]
+
+    x_test = x_test[frac:]
+    y_test = y_test[frac:]
 
     # tokenize descriptions
     tokenizer = Tokenizer(num_words=MAXLEN)
     tokenizer.fit_on_texts(x_train)
     print('Found %s unique tokens.' % len(tokenizer.word_index))
 
-    # tokenize train and test sets
+    # tokenize train, validation, and test sets
     x_train = tokenizer.texts_to_sequences(x_train)
     x_train = pad_sequences(x_train, maxlen=MAXLEN)
+
+    x_valid = tokenizer.texts_to_sequences(x_valid)
+    x_valid = pad_sequences(x_valid, maxlen=MAXLEN)
 
     x_test  = tokenizer.texts_to_sequences(x_test)
     x_test = pad_sequences(x_test, maxlen=MAXLEN)
@@ -66,11 +84,13 @@ if __name__ == '__main__':
 
     # train model
     model = create_model(MAXLEN)
-    model.fit([manas_train, x_train], y_train,
+    hist = model.fit([manas_train, x_train], y_train,
+        validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,
         epochs=10,
         callbacks=[checkpointer]
     )
+    plot_graphs(hist)
 
     # evaluate and visualize
     score, acc = model.evaluate([manas_test, x_test], y_test,
