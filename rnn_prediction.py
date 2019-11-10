@@ -29,7 +29,9 @@ def plot_graphs(history):
     plt.xlabel("Epochs")
     plt.ylabel('loss')
     plt.legend(['loss', 'val_loss'])
-    fig.savefig('rnn-training-curve.png')
+    fname = 'rnn-training-curve.png'
+    fig.savefig(fname)
+    print('Training curves written as: "%s"' % fname)
 
 def make_results_folder(name):
     try:
@@ -90,11 +92,11 @@ if __name__ == '__main__':
         epochs=10,
         callbacks=[checkpointer]
     )
-    plot_graphs(hist)
 
     # evaluate and visualize
     score, acc = model.evaluate([manas_test, x_test], y_test,
                                 batch_size=batch_size)
     print('\nscore:    %.02f' % score)
     print('accuracy: %.02f\n' % acc)
+    plot_graphs(hist)
     visualize(manas_test, x_test, y_test, model)
