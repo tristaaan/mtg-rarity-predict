@@ -5,7 +5,7 @@ from keras.preprocessing.text import Tokenizer
 
 from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, plot_confusion_matrix
-from rnn_model import create_model
+from rnn_model import full_model
 from rnn_constants import MAXLEN, RARITIES, FULL_INPUTS
 
 def visualize(m_test, x_test, y_test, model):
@@ -17,7 +17,7 @@ def visualize(m_test, x_test, y_test, model):
 
 if __name__ == '__main__':
     # load model
-    model = create_model(MAXLEN)
+    model = full_model(MAXLEN)
     model.load_weights('tmp/weights-rnn.hdf5')
 
     # load data

@@ -10,7 +10,7 @@ from keras.preprocessing.text import Tokenizer
 from sklearn.metrics import confusion_matrix
 
 from utils import get_train_test_split
-from rnn_model import create_model
+from rnn_model import full_model
 from rnn_viz import visualize
 from rnn_constants import MAXLEN, FULL_INPUTS
 
@@ -40,7 +40,7 @@ def make_results_folder(name):
         pass
 
 if __name__ == '__main__':
-    batch_size = 48
+    batch_size = 32
 
     # load data
     cards = pd.read_csv('processed_sets.csv', sep='\t')
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     )
 
     # train model
-    model = create_model(MAXLEN)
+    model = full_model(MAXLEN)
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,

@@ -54,4 +54,4 @@ def full_model(maxlen=MAXLEN):
     return model
 
 if __name__ == '__main__':
-    create_model()
+    full_model()
