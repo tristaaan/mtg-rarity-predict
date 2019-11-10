@@ -19,9 +19,10 @@ def rf_classification(train_values, train_labels):
     rf.fit(train_values, train_labels)
     return rf
 
+
 def mlp_classification(train_values, train_labels):
-    mlp = MLPClassifier(solver='adam', activation='tanh',
-                        hidden_layer_sizes=(50), max_iter=5000,
+    mlp = MLPClassifier(solver='adam', activation='relu',
+                        hidden_layer_sizes=(64), max_iter=5000,
                         random_state=123)
     mlp.fit(train_values, train_labels)
     return mlp
