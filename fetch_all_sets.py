@@ -11,11 +11,13 @@ if __name__ == '__main__':
     # Expansion and core sets back until October 2015
     # https://mtg.gamepedia.com/Core_set
     # https://mtg.gamepedia.com/Set#List_of_Magic_expansions_and_sets
-    sets = ['BFZ', 'OGW', 'SOI', 'EMN', # no core set, Magic Origins (ORI)
-            'KLD', 'AER', 'AKH', 'HOU', # no core set
-            'XLN', 'RIX', 'DOM', 'M19',
-            'GRN', 'RNA', 'WAR', 'M20',
-            'ELD'] #_     _       M21
+    sets = ['M14', 'THS', 'BNG', 'JOU',
+            'M15', 'KTK', 'FRF', 'DTK',
+            'ORI', 'BFZ', 'OGW', 'SOI',
+            'EMN', 'KLD', 'AER', 'AKH',
+            'HOU', 'XLN', 'RIX', 'DOM',
+            'M19', 'GRN', 'RNA', 'WAR',
+            'M20', 'ELD']
     processed_sets = {}
     for s in sets:
         start = time()
