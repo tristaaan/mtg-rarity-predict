@@ -1,4 +1,5 @@
-MAXLEN = 256
+MAXLEN = 84 # cut text after this many words
+MAXFEAT = 1024 # maximum features in embedding
 
 RARITIES = ['common', 'uncommon', 'rare', 'mythic']
 FULL_INPUTS = ['type', 'C', 'R', 'U', 'B', 'G', 'W', 'X',  \

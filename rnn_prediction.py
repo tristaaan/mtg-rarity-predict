@@ -85,7 +85,7 @@ if __name__ == '__main__':
     )
 
     # train model
-    model = full_model(MAXLEN)
+    model = full_model()
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,

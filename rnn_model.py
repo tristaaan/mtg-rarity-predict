@@ -2,14 +2,14 @@ from tensorflow import set_random_seed
 set_random_seed(123)
 
 from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Embedding, Input, LSTM, concatenate
+from keras.layers import Dense, Dropout, Embedding, Input, LSTM, Conv1D, MaxPooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
-from rnn_constants import MAXLEN, FULL_INPUTS
+from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
 
-def simple_model(maxlen=MAXLEN):
+def simple_model():
     model = Sequential()
-    model.add(Embedding(input_dim=maxlen, output_dim=64))
+    model.add(Embedding(input_dim=MAXFEAT, output_dim=64))
     model.add(LSTM(64, dropout=0.2, recurrent_dropout=0.2))
     model.add(Dense(4, activation='softmax'))
     model.summary()
@@ -20,7 +20,7 @@ def simple_model(maxlen=MAXLEN):
     )
     return model
 
-def full_model(maxlen=MAXLEN):
+def full_model():
     # mana, type, description pipeline
     shape = len(FULL_INPUTS)
     mana_input = Input(shape=(shape,), name='costs')
@@ -28,19 +28,17 @@ def full_model(maxlen=MAXLEN):
     mana_pipeline = mana_fc_1(mana_input)
 
     # description pipeline
-    desc_input = Input(shape=(maxlen,), name='description')
-    embed = Embedding(input_dim=maxlen, output_dim=64)
-    lstm = LSTM(64, dropout=0.2, recurrent_dropout=0.2)
-    text_pipeline = lstm(embed(desc_input))
+    desc_input = Input(shape=(MAXLEN,), name='description')
+    embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
+    x = Conv1D(64, kernel_size=5, activation='relu')(embed)
+    x = MaxPooling1D()(x)
+    text_pipeline = LSTM(64)(x)
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
     x = Dense(512, activation='relu', name='fc_1')(cat)
     x = Dense(512, activation='relu', name='fc_2')(x)
     x = Dropout(0.5, seed=123)(x)
-    x = Dense(256, activation='relu', name='fc_3')(x)
-    x = Dense(256, activation='relu', name='fc_4')(x)
-    x = Dropout(0.5, seed=456)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
 
     # build model
