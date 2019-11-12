@@ -9,7 +9,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 from sklearn.metrics import confusion_matrix
 
-from utils import get_train_test_split
+from utils import get_train_test_split, pretrained_embedding_matrix
 from rnn_model import full_model
 from rnn_viz import visualize
 from rnn_constants import MAXLEN, FULL_INPUTS
@@ -47,8 +47,10 @@ if __name__ == '__main__':
 
     # split data
     train_split = 0.7
-    manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS, train_split)
-    x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'], train_split)
+    manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS,
+            train_split)
+    x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'],
+            train_split)
 
     # split the test set into validation and test sets
     frac = int(((1-train_split) / 2) * len(x_test))
@@ -62,9 +64,15 @@ if __name__ == '__main__':
     y_test = y_test[frac:]
 
     # tokenize descriptions
+    corpus = cards['text'].str.split().values
     tokenizer = Tokenizer(num_words=MAXLEN)
-    tokenizer.fit_on_texts(x_train)
+    tokenizer.fit_on_texts(corpus)
     print('Found %s unique tokens.' % len(tokenizer.word_index))
+
+    embedding_mat = pretrained_embedding_matrix(
+        corpus,
+        tokenizer.word_index
+    )
 
     # tokenize train, validation, and test sets
     x_train = tokenizer.texts_to_sequences(x_train)
@@ -78,14 +86,15 @@ if __name__ == '__main__':
 
     # save model as we go
     make_results_folder('tmp')
-    checkpointer = ModelCheckpoint(filepath=os.path.join('tmp','weights-rnn.hdf5'),
+    checkpointer = ModelCheckpoint(
+        filepath=os.path.join('tmp','weights-rnn.hdf5'),
         monitor='loss',
         verbose=1,
         save_best_only=True
     )
 
     # train model
-    model = full_model()
+    model = full_model(embedding_matrix=embedding_mat)
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,

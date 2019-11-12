@@ -1,11 +1,12 @@
 import itertools
+import os
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-from rnn_constants import RARITIES
+from rnn_constants import MAXFEAT, RARITIES
 
 def get_train_test_split(df, inputs, train_split=0.8):
     '''
@@ -40,8 +41,8 @@ def get_train_test_split(df, inputs, train_split=0.8):
 
     # Split train and test datasets into features/labels
     if 'text' in inputs:
-        train_values, train_labels = text_split(train_df, inputs, spell_types)
-        test_values, test_labels   = text_split(test_df, inputs, spell_types)
+        train_values, train_labels = text_split(train_df, spell_types)
+        test_values, test_labels   = text_split(test_df, spell_types)
     else:
         train_values, train_labels = split(train_df, inputs, spell_types)
         test_values, test_labels   = split(test_df, inputs, spell_types)
@@ -49,9 +50,9 @@ def get_train_test_split(df, inputs, train_split=0.8):
     return (train_values, train_labels, test_values, test_labels)
 
 
-def text_split(df, columns, spell_types):
+def text_split(df, spell_types):
     # print(df[columns].values.tolist()[0:5])
-    values = list(map(lambda x: x[0].split(), df[columns].values.tolist()))
+    values = df['text'].str.split().values
     labels = df['rarity'].values.ravel()
     labels = np.array(list(map(label_array, labels)))
     return (values, labels)
@@ -72,6 +73,45 @@ def split(df, columns, spell_types):
         r[0] = spell_types.index(r[0]) - len(spell_types)//2
     labels = df['rarity'].values.ravel()
     return (values, labels)
+
+
+def pretrained_embedding_matrix(texts, word_index):
+    # load cache if exists
+    glove_dir = '.'
+    cache_dir = 'tmp'
+    fname = 'embedding_matrix.npy'
+    cache_path = os.path.join(cache_dir, fname)
+    if os.path.isfile(cache_path):
+        print('Using cached embedding matrix...')
+        return np.load(cache_path)
+
+    print('Building embedding matrix...')
+    embeddings_index = {}
+    size = 100
+    with open(os.path.join(glove_dir, 'glove.6B.%dd.txt' % size)) as f:
+        for line in f:
+            word, coefs = line.split(maxsplit=1)
+            coefs = np.fromstring(coefs, 'f', sep=' ')
+            embeddings_index[word] = coefs
+
+    embedding_matrix = np.random.normal(size=(MAXFEAT, size))
+
+    non = 0
+    # num = 0
+    for word, index in word_index.items():
+        # if word in '1234567890':
+        #     num += 1
+        #     continue
+        embedding_vector = embeddings_index.get(word)
+        if embedding_vector is not None:
+            embedding_matrix[index] = embedding_vector
+        else:
+            non += 1
+    print(non, 'words did not have embed mappings')
+    # print(num, 'words were numerics')
+
+    np.save(os.path.join(cache_dir, fname), embedding_matrix)
+    return embedding_matrix
 
 
 def get_min_rarity_count(cards):

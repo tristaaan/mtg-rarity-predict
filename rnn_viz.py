@@ -17,7 +17,7 @@ def visualize(m_test, x_test, y_test, model):
 
 if __name__ == '__main__':
     # load model
-    model = full_model(MAXLEN)
+    model = full_model()
     model.load_weights('tmp/weights-rnn.hdf5')
 
     # load data

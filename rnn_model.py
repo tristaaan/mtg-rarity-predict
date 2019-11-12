@@ -1,8 +1,10 @@
 from tensorflow import set_random_seed
 set_random_seed(123)
 
+from keras.initializers import Constant
 from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Embedding, Input, LSTM, Conv1D, MaxPooling1D, concatenate
+from keras.layers import Dense, Dropout, Embedding, Input, LSTM, \
+    Conv1D, MaxPooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
 from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
@@ -20,7 +22,7 @@ def simple_model():
     )
     return model
 
-def full_model():
+def full_model(embedding_matrix=None):
     # mana, type, description pipeline
     shape = len(FULL_INPUTS)
     mana_input = Input(shape=(shape,), name='costs')
@@ -29,7 +31,16 @@ def full_model():
 
     # description pipeline
     desc_input = Input(shape=(MAXLEN,), name='description')
-    embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
+    # load embedding matrix if exists
+    if len(embedding_matrix):
+        embed = Embedding(MAXFEAT, 100,
+            embeddings_initializer=Constant(embedding_matrix),
+            input_length=MAXLEN,
+            trainable=False
+        )(desc_input)
+    # otherwise use basic RNN embedding
+    else:
+        embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
     x = Conv1D(64, kernel_size=5, activation='relu')(embed)
     x = MaxPooling1D()(x)
     text_pipeline = LSTM(64)(x)
