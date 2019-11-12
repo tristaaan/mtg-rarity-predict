@@ -82,14 +82,23 @@ def replace_instances(ability, regex, replacement):
 def cost_to_cmc(cost):
     cost_matches = re.findall(r'\{([\w\d]+(?:\/\w)?)\}', cost)
     cmc_num = 0
+    cmc_str = ['pay']
     for m in cost_matches:
         # colorless always comes first
-        if m in '1234567890':
+        if m in '123456789':
             cmc_num += int(m)
-        # it's a letter
+        # cost can be 0
+        elif m == '0':
+            cmc_str += 'nothing'
+        # x
+        elif m == 'x':
+            cmc_str += 'something'
+        # it's a mana letter
         else:
             cmc_num += 1
-    return str(cmc_num)
+    if cmc_num > 0:
+        return ' '.join(cmc_str) + ' and ' + str(cmc_num)
+    return ' '.join(cmc_str)
 
 '''
 colorless, red, blue, black, green, white, x
