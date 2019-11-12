@@ -15,24 +15,36 @@ class mCard(object):
         self.mana_cost = json_card['mana_cost']
 
 
-def strip_text(val):
-    if val == None:
+def strip_text(card):
+    if card.text == None:
         return ''
+    # cast to lowercase
+    val = card.text.lower()
+    # remove parenthetical explanations
+    ret = re.sub(r'\(.*\)', '', val)
     # remove punctuation
-    ret = re.sub(r'</?i>|[\(\),.:—•"\']', '', val.lower())
+    ret = re.sub(r'</?i>|[,.:—•"\'\u2212]', '', ret)
     # replace \n with ' '
-    ret = re.sub(r' +', ' ', re.sub(r'\n', ' ', ret))
-    # replace special character
-    ret = ret.replace(u'\u2212', '-')
+    ret = re.sub(r'\n', ' ', ret)
+    # remove reference to self
+    ret = ret.replace(card.name.lower(), 'this')
     # replace tap icon with the word
     ret = ret.replace('{t}', 'tap')
     # replace or remove counters 1/1, +1/+1, -1/+1, etc
     if re.search(r'[+-]?[\dx]+\/[+-]?[\dx]+', ret) is not None:
         ret = counter_replace(ret)
     if '{' in ret:
-        mana_groups = re.finditer(r'(\{[\d\w ]+\})+', ret)
+        # find mana groups
+        mana_groups = re.finditer(r'(\{[\w\d]+(?:\/\w)?\})+', ret)
+        # computed iterable to list
+        mana_groups = [g.group() for g in mana_groups]
+        # sort longest to shortest, this is because {4}{r} produces two groups:
+        # {4}{r} and {r}, the longest one should be addressed first
+        mana_groups.sort(key=lambda x: len(x), reverse=True)
         for g in mana_groups:
-            ret = ret.replace(g.group(), cost_to_cmc(g.group()))
+            # the group might have been removed if it was apart of a larger one
+            if g in ret:
+                ret = ret.replace(g, cost_to_cmc(g))
     return ret
 
 
@@ -55,7 +67,7 @@ def counter_replace(ability):
     ability = replace_instances(ability, r'(\+[\dx]+/-[\dx]+)', 'strengthen')
     # -1/+1
     ability = replace_instances(ability, r'(-[\dx]+/\+[\dx]+)', 'toughen')
-    # 1/1
+    # x/x token
     ability = replace_instances(ability, r'([\dx]+/[\dx]+)', '')
     return ability
 
@@ -68,12 +80,16 @@ def replace_instances(ability, regex, replacement):
 
 
 def cost_to_cmc(cost):
-    cost_matches = re.findall(r'\{([\w\d ]+)\}', cost)
-    cmc = 0
-    if cost_matches[0] in '1234567890':
-        cmc += int(cost_matches[0])
-    cmc += len(cost_matches[1:])
-    return str(cmc)
+    cost_matches = re.findall(r'\{([\w\d]+(?:\/\w)?)\}', cost)
+    cmc_num = 0
+    for m in cost_matches:
+        # colorless always comes first
+        if m in '1234567890':
+            cmc_num += int(m)
+        # it's a letter
+        else:
+            cmc_num += 1
+    return str(cmc_num)
 
 '''
 colorless, red, blue, black, green, white, x
@@ -105,7 +121,7 @@ def process_set(card_set, df):
             continue
         c = mCard(jc)
         joined_type = join_type(c.types)
-        description = strip_text(c.text)
+        description = strip_text(c)
         # skip if: non-allowed type, no descriptopn, or no mana cost.
         if joined_type == None or \
             len(description) == 0 or \
