@@ -41,15 +41,18 @@ def full_model(embedding_matrix=None):
     # otherwise use basic RNN embedding
     else:
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
-    x = Conv1D(64, kernel_size=5, activation='relu')(embed)
+    x = Conv1D(100, kernel_size=5, activation='relu')(embed)
     x = MaxPooling1D()(x)
-    text_pipeline = LSTM(64)(x)
+    text_pipeline = LSTM(128)(x)
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
-    x = Dense(512, activation='relu', name='fc_1')(cat)
-    x = Dense(512, activation='relu', name='fc_2')(x)
+    x = Dense(1024, activation='relu', name='fc_1')(cat)
+    x = Dense(1024, activation='relu', name='fc_2')(x)
     x = Dropout(0.5, seed=123)(x)
+    x = Dense(512, activation='relu', name='fc_3')(x)
+    x = Dense(512, activation='relu', name='fc_4')(x)
+    x = Dropout(0.5, seed=456)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
 
     # build model
