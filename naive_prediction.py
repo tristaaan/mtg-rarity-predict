@@ -48,11 +48,16 @@ if __name__ == '__main__':
                    'B/G', 'B/R', 'G/U', 'G/W', 'R/G', 'R/W', 'U/B', \
                    'U/R', 'W/B', 'W/U', 'legendary']
 
+    # load dataset
     cards = pd.read_csv('processed_sets.csv', sep='\t')
     train_values, train_labels, test_values, test_labels = \
         get_train_test_split(cards, full_inputs)
+
+    # normalize
     train_values = normalize_costs(train_values)
     test_values = normalize_costs(test_values)
+
+    # choose and train model
     if method == 'mlp':
         print('classifying with MLP...')
         model = mlp_classification(train_values, train_labels)
