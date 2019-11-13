@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.svm import LinearSVC
 
-from utils import get_train_test_split, plot_confusion_matrix
+from utils import get_train_test_split, plot_confusion_matrix, normalize_costs
 
 
 def rf_classification(train_values, train_labels):
@@ -52,6 +52,10 @@ if __name__ == '__main__':
     cards = pd.read_csv('processed_sets.csv', sep='\t')
     train_values, train_labels, test_values, test_labels = \
         get_train_test_split(cards, full_inputs)
+
+    # normalize
+    train_values = normalize_costs(train_values)
+    test_values = normalize_costs(test_values)
 
     # choose and train model
     if method == 'mlp':

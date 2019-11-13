@@ -2,6 +2,8 @@ import itertools
 import os
 
 import numpy as np
+np.random.seed(123)
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
@@ -75,6 +77,10 @@ def split(df, columns, spell_types):
     return (values, labels)
 
 
+def normalize_costs(df):
+    return (df - df.mean()) / (df.max() - df.min())
+
+
 def pretrained_embedding_matrix(texts, word_index):
     # load cache if exists
     glove_dir = '.'
@@ -88,7 +94,7 @@ def pretrained_embedding_matrix(texts, word_index):
     print('Building embedding matrix...')
     embeddings_index = {}
     size = 100
-    with open(os.path.join(glove_dir, 'glove.6B.%dd.txt' % size)) as f:
+    with open(os.path.join(glove_dir, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
         for line in f:
             word, coefs = line.split(maxsplit=1)
             coefs = np.fromstring(coefs, 'f', sep=' ')

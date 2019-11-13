@@ -13,6 +13,7 @@ from utils import get_train_test_split, pretrained_embedding_matrix
 from rnn_model import full_model
 from rnn_viz import visualize
 from rnn_constants import MAXLEN, FULL_INPUTS
+from utils import normalize_costs
 
 import tensorflow as tf
 from tensorflow.python.client import device_lib
@@ -21,6 +22,7 @@ print(device_lib.list_local_devices())
 config = tf.ConfigProto()
 # config.gpu_options.allocator_type = 'BFC'
 tf.Session(config = config)
+
 
 def plot_graphs(history):
     fig = plt.figure(figsize=(8,5))
@@ -33,11 +35,13 @@ def plot_graphs(history):
     fig.savefig(fname)
     print('Training curves written as: "%s"' % fname)
 
+
 def make_results_folder(name):
     try:
         os.mkdir(name)
     except FileExistsError:
         pass
+
 
 if __name__ == '__main__':
     batch_size = 32
@@ -51,6 +55,9 @@ if __name__ == '__main__':
             train_split)
     x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'],
             train_split)
+
+    manas_train = normalize_costs(manas_train)
+    manas_test = normalize_costs(manas_test)
 
     # split the test set into validation and test sets
     frac = int(((1-train_split) / 2) * len(x_test))
