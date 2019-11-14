@@ -47,7 +47,7 @@ def full_model(embedding_matrix=None):
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
-    x = Dense(512, activation='relu', name='fc_1')(x)
+    x = Dense(512, activation='relu', name='fc_1')(cat)
     x = Dense(512, activation='relu', name='fc_2')(x)
     x = Dropout(0.5, seed=123)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
