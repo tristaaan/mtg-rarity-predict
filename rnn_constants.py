@@ -1,4 +1,4 @@
-MAXLEN = 84 # cut text after this many words
+MAXLEN = 74 # cut text after this many words
 MAXFEAT = 1500 # maximum features in embedding
 
 RARITIES = ['common', 'uncommon', 'rare', 'mythic']
