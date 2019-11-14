@@ -33,7 +33,7 @@ def full_model(embedding_matrix=None):
     desc_input = Input(shape=(MAXLEN,), name='description')
     # load embedding matrix if exists
     if embedding_matrix is not None:
-        embed = Embedding(MAXFEAT, 100,
+        embed = Embedding(MAXFEAT, 200,
             embeddings_initializer=Constant(embedding_matrix),
             input_length=MAXLEN,
             trainable=False
@@ -47,12 +47,9 @@ def full_model(embedding_matrix=None):
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
-    x = Dense(1024, activation='relu', name='fc_1')(cat)
-    x = Dense(1024, activation='relu', name='fc_2')(x)
-    x = Dropout(0.5, seed=123)(x)
     x = Dense(512, activation='relu', name='fc_3')(x)
     x = Dense(512, activation='relu', name='fc_4')(x)
-    x = Dropout(0.5, seed=456)(x)
+    x = Dropout(0.5, seed=123)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
 
     # build model

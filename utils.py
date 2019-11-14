@@ -95,7 +95,7 @@ def pretrained_embedding_matrix(texts, word_index):
 
     print('Building embedding matrix...')
     embeddings_index = {}
-    size = 100
+    size = 200
     with open(os.path.join(glove_dir, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
         for line in f:
             word, coefs = line.split(maxsplit=1)
