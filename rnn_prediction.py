@@ -51,7 +51,10 @@ if __name__ == '__main__':
 
     # split data
     train_split = 0.7
-    manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS,
+    valid_split = 0.2
+    test_split = 1 - train_split - valid_split
+    assert(test_split > 0, 'there is no data to test on')
+    manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS + ['text'],
             train_split)
     x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'],
             train_split)
@@ -60,7 +63,7 @@ if __name__ == '__main__':
     manas_test = normalize_costs(manas_test)
 
     # split the test set into validation and test sets
-    frac = int(((1-train_split) / 2) * len(x_test))
+    frac = int(valid_split * len(x_test))
     x_valid = x_test[:frac]
     y_valid = y_test[:frac]
 
