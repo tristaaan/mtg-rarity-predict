@@ -32,7 +32,7 @@ def full_model(embedding_matrix=None):
     # description pipeline
     desc_input = Input(shape=(MAXLEN,), name='description')
     # load embedding matrix if exists
-    if len(embedding_matrix):
+    if embedding_matrix is not None:
         embed = Embedding(MAXFEAT, 100,
             embeddings_initializer=Constant(embedding_matrix),
             input_length=MAXLEN,
