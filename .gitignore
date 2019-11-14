@@ -3,3 +3,5 @@
 *.json
 *.png
 *.hdf5
+*.npy
+*.txt
