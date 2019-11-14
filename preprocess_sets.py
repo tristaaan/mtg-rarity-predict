@@ -124,20 +124,21 @@ def mana_cost_to_dict(cost):
     return cost_dict
 
 
-def process_set(card_set, df):
+def process_set(card_set, set_name, df):
     for jc in card_set:
         if jc['image_url'] == None:
             continue
         c = mCard(jc)
         joined_type = join_type(c.types)
         description = strip_text(c)
-        # skip if: non-allowed type, no descriptopn, or no mana cost.
+        # skip if: non-allowed type, no description, or no mana cost.
         if joined_type == None or \
             len(description) == 0 or \
             c.mana_cost == None:
             continue
 
-        df = df.append({'name': c.name, 'rarity': c.rarity.lower(),
+        df = df.append({'set': set_name, 'name': c.name,
+                       'rarity': c.rarity.lower(),
                        'text': description, 'type': joined_type,
                        'legendary': 'Legendary' in c.supertypes,
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
@@ -152,7 +153,7 @@ if __name__ == '__main__':
         df = pd.DataFrame(columns=columns)
         for k in set_keys:
             print('preprocessing %s' % k)
-            df = process_set(sets[k], df)
+            df = process_set(sets[k], k, df)
         rare_counts = df['rarity'].value_counts(dropna=False)
         print('rarities:', rare_counts)
         type_counts = df['type'].value_counts(dropna=False)
