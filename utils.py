@@ -42,7 +42,7 @@ def get_train_test_split(df, inputs, train_split=0.8):
     spell_types = np.unique(df.loc[:,['type']].values).tolist()
 
     # Split train and test datasets into features/labels
-    if 'text' in inputs:
+    if 'text' in inputs and len(inputs) == 1:
         train_values, train_labels = text_split(train_df, spell_types)
         test_values, test_labels   = text_split(test_df, spell_types)
     else:
@@ -68,6 +68,8 @@ def label_array(rarity):
 
 
 def split(df, columns, spell_types):
+    if 'text' in columns:
+        df['text'] = df['text'].apply(lambda x: len(x.split()))
     values = df[columns].values
     # convert spell type into numerical value
     for r in values:

@@ -15,7 +15,11 @@ from utils import get_train_test_split, plot_confusion_matrix, normalize_costs
 
 
 def rf_classification(train_values, train_labels):
-    rf = RandomForestClassifier(n_estimators=100, random_state=123)
+    rf = RandomForestClassifier(
+        n_estimators=500,
+        random_state=123,
+        class_weight={'common':0.1, 'uncommon':1, 'rare':1, 'mythic':0.1}
+    )
     rf.fit(train_values, train_labels)
     return rf
 
@@ -29,7 +33,7 @@ def mlp_classification(train_values, train_labels):
 
 
 def svm_classification(train_values, train_labels):
-    clf = LinearSVC()
+    clf = LinearSVC(max_iter=1000)
     svm = CalibratedClassifierCV(clf)
     svm.fit(train_values, train_labels)
     return svm
@@ -46,7 +50,7 @@ if __name__ == '__main__':
     #type_cmc = ['type', 'cmc', 'legendary']
     full_inputs = ['type', 'C', 'R', 'U', 'B', 'G', 'W', 'X',  \
                    'B/G', 'B/R', 'G/U', 'G/W', 'R/G', 'R/W', 'U/B', \
-                   'U/R', 'W/B', 'W/U', 'legendary']
+                   'U/R', 'W/B', 'W/U', 'legendary', 'text']
 
     # load dataset
     cards = pd.read_csv('processed_sets.csv', sep='\t')
@@ -62,7 +66,7 @@ if __name__ == '__main__':
         print('classifying with MLP...')
         model = mlp_classification(train_values, train_labels)
     elif method == 'rf':
-        print('classifying with MLP...')
+        print('classifying with random forest...')
         model = rf_classification(train_values, train_labels)
     elif method == 'svm':
         print('classifying with SVM...')
