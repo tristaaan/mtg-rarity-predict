@@ -15,6 +15,7 @@ class mCard(object):
         self.original_text = json_card['original_text']
         self.supertypes = json_card['supertypes']
         self.types     = json_card['types']
+        self.subtypes  = json_card['subtypes']
         self.cmc       = json_card['cmc']
         self.mana_cost = json_card['mana_cost']
 
@@ -52,12 +53,13 @@ def strip_text(card):
     return ret
 
 
-def join_type(val):
-    joined = ' '.join(val).lower()
+def join_type(types, subtypes):
+    joined = ' '.join(types).lower()
     # do not consider these types
     if 'land' in joined or \
         'gate' in joined or \
-        'planeswalker' in joined:
+        'planeswalker' in joined or \
+        'Saga' in subtypes:
         return None
     return joined
 
@@ -93,10 +95,10 @@ def cost_to_cmc(cost):
             cmc_num += int(m)
         # cost can be 0
         elif m == '0':
-            cmc_str += 'nothing'
+            cmc_str.append('nothing')
         # x
         elif m == 'x':
-            cmc_str += 'something'
+            cmc_str.append('something')
         # it's a mana letter
         else:
             cmc_num += 1
@@ -137,7 +139,7 @@ def process_set(card_set, set_name, df):
         if jc['image_url'] == None:
             continue
         c = mCard(jc)
-        joined_type = join_type(c.types)
+        joined_type = join_type(c.types, c.subtypes)
         description = strip_text(c)
         # skip if: non-allowed type, no description, or no mana cost.
         if joined_type == None or \
