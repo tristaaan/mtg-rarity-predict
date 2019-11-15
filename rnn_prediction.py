@@ -17,7 +17,7 @@ from utils import get_train_test_split, pretrained_embedding_matrix
 from rnn_model import full_model
 from rnn_viz import visualize
 from rnn_constants import MAXLEN, FULL_INPUTS
-from utils import normalize_costs
+from utils import normalize_costs, make_folder
 
 config = tf.ConfigProto()
 tf.Session(config = config)
@@ -32,13 +32,6 @@ def plot_graphs(history):
     fname = 'rnn-training-curve.png'
     fig.savefig(fname)
     print('Training curves written as: "%s"' % fname)
-
-
-def make_results_folder(name):
-    try:
-        os.mkdir(name)
-    except FileExistsError:
-        pass
 
 
 if __name__ == '__main__':
@@ -93,7 +86,7 @@ if __name__ == '__main__':
     x_test = pad_sequences(x_test, maxlen=MAXLEN)
 
     # save model as we go
-    make_results_folder('tmp')
+    make_folder('tmp')
     checkpointer = ModelCheckpoint(
         filepath=os.path.join('tmp','weights-rnn.hdf5'),
         monitor='loss',

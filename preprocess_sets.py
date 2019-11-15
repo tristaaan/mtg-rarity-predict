@@ -1,6 +1,10 @@
+import glob
 import json
 import re
+
 import pandas as pd
+
+from os import path
 
 
 class mCard(object):
@@ -115,7 +119,11 @@ def mana_cost_to_dict(cost):
     cost_dict = dict(zip(mana_types, [0]*len(mana_types)))
     cost_matches = re.findall(r'\{(\d+|\w\/\w|\w)\}', cost)
     for c in cost_matches:
-        if c[0] in '1234567890':
+        # some cards in NLP have this type
+        if 'P' in c:
+            cost_dict[c[0]] += 1
+        # colorless
+        elif c[0] in '1234567890':
             cost_dict['C'] += int(c)
         elif c[0] == 'X':
             cost_dict['X'] += 1
@@ -145,17 +153,23 @@ def process_set(card_set, set_name, df):
                        ignore_index=True)
     return df
 
+
 if __name__ == '__main__':
-    with open('all_sets.json', 'r') as all_sets:
-        sets = json.load(all_sets)
-        set_keys = sets.keys()
-        columns = ['name', 'rarity', 'text', 'type', 'cmc'] + mana_types
-        df = pd.DataFrame(columns=columns)
-        for k in set_keys:
-            print('preprocessing %s' % k)
-            df = process_set(sets[k], k, df)
-        rare_counts = df['rarity'].value_counts(dropna=False)
-        print('rarities:', rare_counts)
-        type_counts = df['type'].value_counts(dropna=False)
-        print('types:', type_counts)
-        df.to_csv('processed_sets.csv', sep='\t')
+    # get a list of the json files
+    files = glob.glob(path.join('sets', '*.json'))
+    columns = ['name', 'rarity', 'text', 'type', 'cmc'] + mana_types
+
+    # initialize dataframe and iterate through files
+    df = pd.DataFrame(columns=columns)
+    for fname in files:
+        set_name = path.basename(fname).split('.')[0]
+        print('preprocessing %s' % set_name)
+        with open(fname, 'r') as card_set_f:
+            card_set = json.load(card_set_f)
+            df = process_set(card_set, set_name, df)
+
+    rare_counts = df['rarity'].value_counts(dropna=False)
+    print('rarities:', rare_counts)
+    type_counts = df['type'].value_counts(dropna=False)
+    print('types:', type_counts)
+    df.to_csv('processed_sets.csv', sep='\t')

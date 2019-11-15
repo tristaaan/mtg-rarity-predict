@@ -19,7 +19,7 @@ def get_train_test_split(df, inputs, train_split=0.8):
     # Shuffle data frame
     df = df.sample(frac=1, random_state=rs)
 
-    assert(train_split < 1, 'Train split must be less than 1')
+    assert train_split < 1, 'Train split must be less than 1'
     test_split = 1 - train_split
 
     # Select same number of samples per class for train set, remaining go to test set
@@ -127,6 +127,13 @@ def get_min_rarity_count(cards):
     counts = cards['rarity'].value_counts(dropna=False)
     print(counts)
     return min(counts)
+
+
+def make_folder(name):
+    try:
+        os.mkdir(name)
+    except FileExistsError:
+        pass
 
 
 def plot_confusion_matrix(cm, labels, method):
