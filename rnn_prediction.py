@@ -1,8 +1,12 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
 import os
 
-import matplotlib.pyplot as plt
+import numpy as np
+np.random.seed(123)
+import tensorflow as tf
+tf.set_random_seed(123)
+
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from keras.callbacks import ModelCheckpoint
 from keras.preprocessing.sequence import pad_sequences
@@ -15,14 +19,8 @@ from rnn_viz import visualize
 from rnn_constants import MAXLEN, FULL_INPUTS
 from utils import normalize_costs
 
-import tensorflow as tf
-from tensorflow.python.client import device_lib
-print(device_lib.list_local_devices())
-
 config = tf.ConfigProto()
-# config.gpu_options.allocator_type = 'BFC'
 tf.Session(config = config)
-
 
 def plot_graphs(history):
     fig = plt.figure(figsize=(8,5))
