@@ -50,8 +50,8 @@ if __name__ == '__main__':
     cards = pd.read_csv('processed_sets.csv', sep='\t')
 
     # split data
-    train_split = 0.5
-    valid_split = 0.4
+    train_split = 0.7
+    valid_split = 0.2
     test_split = 1 - train_split - valid_split
     assert(test_split > 0, 'there is no data to test on')
     manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS,
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,
-        epochs=10,
+        epochs=15,
         callbacks=[checkpointer]
     )
 

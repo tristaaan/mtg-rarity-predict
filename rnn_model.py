@@ -41,7 +41,9 @@ def full_model(embedding_matrix=None):
     # otherwise use basic RNN embedding
     else:
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
-    x = Conv1D(100, kernel_size=5, activation='relu')(embed)
+    x = Conv1D(64, kernel_size=3, activation='relu')(embed)
+    x = MaxPooling1D()(x)
+    x = Conv1D(64, kernel_size=3, activation='relu')(x)
     x = MaxPooling1D()(x)
     text_pipeline = LSTM(128)(x)
 
