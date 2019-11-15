@@ -26,8 +26,11 @@ def full_model(embedding_matrix=None):
     # mana, type, description pipeline
     shape = len(FULL_INPUTS)
     mana_input = Input(shape=(shape,), name='costs')
-    mana_fc_1 = Dense(64, activation='relu', name='costs_dense')
-    mana_pipeline = mana_fc_1(mana_input)
+    x = Dense(64, activation='relu', name='costs_fc_1')(mana_input)
+    x = Dropout(0.25, seed=111)(x)
+    x = Dense(64, activation='relu', name='costs_fc_2')(x)
+    x = Dropout(0.25, seed=222)(x)
+    mana_pipeline = Dense(64, activation='relu', name='costs_fc_3')(x)
 
     # description pipeline
     desc_input = Input(shape=(MAXLEN,), name='description')
@@ -50,8 +53,9 @@ def full_model(embedding_matrix=None):
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
     x = Dense(512, activation='relu', name='fc_1')(cat)
+    x = Dropout(0.8, seed=123)(x)
     x = Dense(512, activation='relu', name='fc_2')(x)
-    x = Dropout(0.5, seed=123)(x)
+    x = Dropout(0.8, seed=456)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
 
     # build model
