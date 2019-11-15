@@ -44,7 +44,7 @@ if __name__ == '__main__':
     train_split = 0.7
     valid_split = 0.2
     test_split = 1 - train_split - valid_split
-    assert(test_split > 0, 'there is no data to test on')
+    assert test_split > 0, 'there is no data to test on'
     manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS,
             train_split)
     x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'],
@@ -54,15 +54,14 @@ if __name__ == '__main__':
     manas_test = normalize_costs(manas_test)
 
     # split the test set into validation and test sets
-    frac = int(valid_split * len(x_test))
+    frac = int((valid_split / (valid_split + test_split)) * len(x_test))
     x_valid = x_test[:frac]
     y_valid = y_test[:frac]
-
     manas_valid = manas_test[:frac]
-    manas_test = manas_test[frac:]
 
     x_test = x_test[frac:]
     y_test = y_test[frac:]
+    manas_test = manas_test[frac:]
 
     # tokenize descriptions
     corpus = cards['text'].str.split().values
