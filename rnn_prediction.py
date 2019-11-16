@@ -35,7 +35,8 @@ def plot_graphs(history):
 
 
 if __name__ == '__main__':
-    batch_size = 32
+    batch_size = 48
+    epochs = 15
 
     # load data
     cards = pd.read_csv('processed_sets.csv', sep='\t')
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,
-        epochs=15,
+        epochs=epochs,
         callbacks=[checkpointer]
     )
 

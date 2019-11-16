@@ -1,10 +1,11 @@
-from tensorflow import set_random_seed
-set_random_seed(123)
+import tensorflow as tf
+tf.set_random_seed(123)
 
+from keras import backend
 from keras.initializers import Constant
 from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Embedding, Input, LSTM, \
-    Conv1D, AveragePooling1D, MaxPooling1D, concatenate
+from keras.layers import Dense, Dropout, Embedding, Input, LSTM, CuDNNLSTM, \
+    Conv1D, AveragePooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
 from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
@@ -44,17 +45,17 @@ def full_model(embedding_matrix=None):
     else:
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
     x = Conv1D(64, kernel_size=3, activation='relu')(embed)
-    x = MaxPooling1D()(x)
-    text_pipeline = LSTM(128)(x)
+    x = AveragePooling1D()(x)
+    if len(backend.tensorflow_backend._get_available_gpus()):
+        text_pipeline = CuDNNLSTM(128)(x)
+    else:
+        text_pipeline = LSTM(128)(x)
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
-    x = Dense(512, activation='relu', name='fc_1')(cat)
-    x = Dense(512, activation='relu', name='fc_2')(x)
-    x = Dropout(0.8, seed=123)(x)
-    x = Dense(512, activation='relu', name='fc_3')(x)
-    x = Dense(512, activation='relu', name='fc_4')(x)
-    x = Dropout(0.8, seed=456)(x)
+    x = Dense(256, activation='relu', name='fc_1')(cat)
+    x = Dense(256, activation='relu', name='fc_2')(x)
+    x = Dropout(0.5, seed=123)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
 
     # build model
