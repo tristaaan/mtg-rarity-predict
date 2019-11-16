@@ -26,7 +26,7 @@ def rf_classification(train_values, train_labels):
 
 def mlp_classification(train_values, train_labels):
     mlp = MLPClassifier(solver='adam', activation='relu',
-                        hidden_layer_sizes=(64,64,64,64), max_iter=10000,
+                        hidden_layer_sizes=(64,64,64,64), max_iter=5000,
                         random_state=123)
     mlp.fit(train_values, train_labels)
     return mlp

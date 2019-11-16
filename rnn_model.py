@@ -46,6 +46,7 @@ def full_model(embedding_matrix=None):
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
     x = Conv1D(64, kernel_size=3, activation='relu')(embed)
     x = AveragePooling1D()(x)
+    # use a GPU if available
     if len(backend.tensorflow_backend._get_available_gpus()):
         text_pipeline = CuDNNLSTM(128)(x)
     else:
