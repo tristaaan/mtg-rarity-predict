@@ -26,7 +26,7 @@ def rf_classification(train_values, train_labels):
 
 def mlp_classification(train_values, train_labels):
     mlp = MLPClassifier(solver='adam', activation='relu',
-                        hidden_layer_sizes=(64), max_iter=5000,
+                        hidden_layer_sizes=(64,64,64,64), max_iter=10000,
                         random_state=123)
     mlp.fit(train_values, train_labels)
     return mlp
@@ -56,10 +56,6 @@ if __name__ == '__main__':
     cards = pd.read_csv('processed_sets.csv', sep='\t')
     train_values, train_labels, test_values, test_labels = \
         get_train_test_split(cards, full_inputs)
-
-    # normalize
-    train_values = normalize_costs(train_values)
-    test_values = normalize_costs(test_values)
 
     # choose and train model
     if method == 'mlp':

@@ -27,10 +27,9 @@ def full_model(embedding_matrix=None):
     shape = len(FULL_INPUTS)
     mana_input = Input(shape=(shape,), name='costs')
     x = Dense(64, activation='relu', name='costs_fc_1')(mana_input)
-    x = Dropout(0.25, seed=111)(x)
     x = Dense(64, activation='relu', name='costs_fc_2')(x)
-    x = Dropout(0.25, seed=222)(x)
-    mana_pipeline = Dense(64, activation='relu', name='costs_fc_3')(x)
+    x = Dense(64, activation='relu', name='costs_fc_3')(x)
+    mana_pipeline = Dense(64, activation='relu', name='costs_fc_4')(x)
 
     # description pipeline
     desc_input = Input(shape=(MAXLEN,), name='description')
@@ -45,8 +44,6 @@ def full_model(embedding_matrix=None):
     else:
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
     x = Conv1D(64, kernel_size=3, activation='relu')(embed)
-    x = MaxPooling1D()(x)
-    x = Conv1D(64, kernel_size=3, activation='relu')(x)
     x = MaxPooling1D()(x)
     text_pipeline = LSTM(128)(x)
 

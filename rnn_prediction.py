@@ -41,17 +41,14 @@ if __name__ == '__main__':
     cards = pd.read_csv('processed_sets.csv', sep='\t')
 
     # split data
-    train_split = 0.7
-    valid_split = 0.2
+    train_split = 0.8
+    valid_split = 0.1
     test_split = 1 - train_split - valid_split
     assert test_split > 0, 'there is no data to test on'
     manas_train, _, manas_test, _ = get_train_test_split(cards, FULL_INPUTS,
             train_split)
     x_train, y_train, x_test, y_test = get_train_test_split(cards, ['text'],
             train_split)
-
-    manas_train = normalize_costs(manas_train)
-    manas_test = normalize_costs(manas_test)
 
     # split the test set into validation and test sets
     frac = int((valid_split / (valid_split + test_split)) * len(x_test))
