@@ -6,3 +6,4 @@
 *.npy
 *.txt
 *.zip
+*.pickle
