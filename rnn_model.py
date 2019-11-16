@@ -49,9 +49,10 @@ def full_model(embedding_matrix=None):
     # use a GPU if available
     units = 128
     if len(backend.tensorflow_backend._get_available_gpus()):
-        text_pipeline = CuDNNLSTM(units)(x)
+        x = CuDNNLSTM(units)(x)
     else:
-        text_pipeline = LSTM(units)(x)
+        x = LSTM(units)(x)
+    text_pipeline = Dropout(0.5)(x)
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
