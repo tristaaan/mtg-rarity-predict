@@ -4,7 +4,7 @@ set_random_seed(123)
 from keras.initializers import Constant
 from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Embedding, Input, LSTM, \
-    Conv1D, MaxPooling1D, concatenate
+    Conv1D, AveragePooling1D, MaxPooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
 from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
@@ -50,8 +50,10 @@ def full_model(embedding_matrix=None):
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
     x = Dense(512, activation='relu', name='fc_1')(cat)
-    x = Dropout(0.8, seed=123)(x)
     x = Dense(512, activation='relu', name='fc_2')(x)
+    x = Dropout(0.8, seed=123)(x)
+    x = Dense(512, activation='relu', name='fc_3')(x)
+    x = Dense(512, activation='relu', name='fc_4')(x)
     x = Dropout(0.8, seed=456)(x)
     output = Dense(4, activation='softmax', name='rarity_output')(x)
 
