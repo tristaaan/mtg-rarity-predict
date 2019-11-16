@@ -1,8 +1,13 @@
-import pandas as pd
-from gensim.models import Word2Vec
+import argparse
 
+from os import path
+
+import pandas as pd
 import matplotlib.pyplot as plt
+
+from gensim.models import Word2Vec
 from sklearn.manifold import TSNE
+
 
 ev_keyword_actions = [
     'activate',
@@ -37,7 +42,10 @@ ev_keyword_actions = [
 
 ev_keywords = [
     # 'double strike', # can't annotate these
-    # 'first strike',
+    # 'first strike', # so they're expanded
+    'first',
+    'double',
+    'strike',
     'deathtouch',
     'defender',
     'enchant',
@@ -80,17 +88,33 @@ lands = [
     'colorless'
 ]
 
+
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Build word2vec model')
+    parser.add_argument('-size', '-s', help='vector size',
+                        type=int, default=100)
+    args = parser.parse_args()
+    kw = vars(args)
+    size = kw['size']
+
     # load cards
     cards = pd.read_csv('processed_sets.csv', sep='\t')
     tok_vals = cards['text'].str.split().values
 
     # Word2Vec
-    model = Word2Vec(tok_vals, size=100, window=5, seed=1234)
+    print('building word2vec model with vec size %d...' % size)
+    model = Word2Vec(tok_vals, size=size, window=5, seed=1234)
+    # save model
+    print('writing model...')
+    model.wv.save_word2vec_format(
+        path.join('tmp', 'mtg_word2vec_%d.bin' % size),
+        binary=True
+    )
     vocab = list(model.wv.vocab)
     X = model[vocab]
 
     # dimensionality reduction
+    print('visualizing model...')
     n_components = 2
     tsne = TSNE(n_components=n_components, init='pca',
                 random_state=1234, method='exact')
@@ -114,5 +138,6 @@ if __name__ == '__main__':
             ax.annotate(word, pos, color='tab:orange')
         else:
             ax.annotate(word, pos, color='gray')
-
-    fig.savefig('card_viz_c=%d.png' % n_components)
+    fname = 'card_viz_c=%d_size=%d.png' % (n_components, size)
+    print('figure saved as %s' % fname)
+    fig.savefig(fname)
