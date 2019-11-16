@@ -1,4 +1,6 @@
-import os
+import argparse
+import pickle
+from os import path
 
 import numpy as np
 np.random.seed(123)
@@ -8,7 +10,7 @@ tf.set_random_seed(123)
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 from sklearn.metrics import confusion_matrix
@@ -16,7 +18,7 @@ from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, pretrained_embedding_matrix
 from rnn_model import full_model
 from rnn_viz import visualize
-from rnn_constants import MAXLEN, FULL_INPUTS
+from rnn_constants import MAXLEN, FULL_INPUTS, DEFAULT_EMBEDDING
 from utils import normalize_costs, make_folder
 
 config = tf.ConfigProto()
@@ -35,8 +37,14 @@ def plot_graphs(history):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Naive card predicion')
+    parser.add_argument('-embedding', '-e', help='choose word embedding',
+                        default=DEFAULT_EMBEDDING)
+    args = parser.parse_args()
+    kw = vars(args)
+
     batch_size = 48
-    epochs = 15
+    epochs = 50
 
     # load data
     cards = pd.read_csv('processed_sets.csv', sep='\t')
@@ -63,13 +71,16 @@ if __name__ == '__main__':
 
     # tokenize descriptions
     corpus = cards['text'].str.split().values
-    tokenizer = Tokenizer(num_words=MAXLEN)
-    tokenizer.fit_on_texts(corpus)
+    tokenizer = Tokenizer()
+    with open(path.join('tmp', 'tokenizer.pickle'), 'rb') as handle:
+        tokenizer = pickle.load(handle)
+    # tokenizer.fit_on_texts(corpus)
     print('Found %s unique tokens.' % len(tokenizer.word_index))
 
     embedding_mat = pretrained_embedding_matrix(
         corpus,
-        tokenizer.word_index
+        tokenizer.word_index,
+        kw['embedding']
     )
 
     # tokenize train, validation, and test sets
@@ -85,10 +96,17 @@ if __name__ == '__main__':
     # save model as we go
     make_folder('tmp')
     checkpointer = ModelCheckpoint(
-        filepath=os.path.join('tmp','weights-rnn.hdf5'),
+        filepath=path.join('tmp','weights-rnn.hdf5'),
         monitor='loss',
         verbose=1,
         save_best_only=True
+    )
+
+    early_stopping = EarlyStopping(
+        monitor='val_loss',
+        patience=10,
+        verbose=1,
+        mode='auto'
     )
 
     # train model
@@ -97,7 +115,7 @@ if __name__ == '__main__':
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,
         epochs=epochs,
-        callbacks=[checkpointer]
+        callbacks=[checkpointer, early_stopping]
     )
 
     # evaluate and visualize

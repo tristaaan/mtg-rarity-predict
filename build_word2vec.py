@@ -1,13 +1,18 @@
 import argparse
+import pickle
 
 from os import path
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 from gensim.models import Word2Vec
 from sklearn.manifold import TSNE
 
+from keras.preprocessing.text import Tokenizer
+from utils import build_embedding_matrix
+from rnn_constants import MAXLEN
 
 ev_keyword_actions = [
     'activate',
@@ -99,17 +104,20 @@ if __name__ == '__main__':
 
     # load cards
     cards = pd.read_csv('processed_sets.csv', sep='\t')
-    tok_vals = cards['text'].str.split().values
+    corpus = cards['text'].str.split().values
+    tokenizer = Tokenizer(num_words=MAXLEN)
+    tokenizer.fit_on_texts(corpus)
+    # save for later?
+    with open(path.join('tmp','tokenizer.pickle'), 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Word2Vec
     print('building word2vec model with vec size %d...' % size)
-    model = Word2Vec(tok_vals, size=size, window=5, seed=1234)
+    model = Word2Vec(corpus, size=size, window=5, seed=1234)
     # save model
     print('writing model...')
-    model.wv.save_word2vec_format(
-        path.join('tmp', 'mtg_word2vec_%d.bin' % size),
-        binary=True
-    )
+    build_embedding_matrix(tokenizer.word_docs.keys(), tokenizer.word_index,
+                           size=size)
     vocab = list(model.wv.vocab)
     X = model[vocab]
 
