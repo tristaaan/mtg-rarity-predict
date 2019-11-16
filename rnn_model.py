@@ -47,10 +47,11 @@ def full_model(embedding_matrix=None):
     x = Conv1D(64, kernel_size=3, activation='relu')(embed)
     x = AveragePooling1D()(x)
     # use a GPU if available
+    units = 128
     if len(backend.tensorflow_backend._get_available_gpus()):
-        text_pipeline = CuDNNLSTM(128)(x)
+        text_pipeline = CuDNNLSTM(units)(x)
     else:
-        text_pipeline = LSTM(128)(x)
+        text_pipeline = LSTM(units)(x)
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
