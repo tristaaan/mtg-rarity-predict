@@ -99,7 +99,7 @@ def pretrained_embedding_matrix(texts, word_index, \
         print('Using home-grown word2vec...')
         return np.load(fname)
     # else: file doesn't exist
-    print('embedding file "%s" not found')
+    print('embedding file "%s" not found' % fname)
     exit()
 
 
