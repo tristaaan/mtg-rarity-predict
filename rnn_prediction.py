@@ -78,7 +78,7 @@ if __name__ == '__main__':
     fname = kw['tokenizer']
     if path.isfile(fname):
         print('Using tokenizer: %s' % fname)
-        with open(DEFAULT_TOKENIZER, 'rb') as handle:
+        with open(fname, 'rb') as handle:
             tokenizer = pickle.load(handle)
     elif fname == DEFAULT_TOKENIZER:
         print('Building default tokenizer... (only need to do this once)')
