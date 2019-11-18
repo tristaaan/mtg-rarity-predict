@@ -36,7 +36,7 @@ def full_model(embedding_matrix=None):
     desc_input = Input(shape=(MAXLEN,), name='description')
     # load embedding matrix if exists
     if embedding_matrix is not None:
-        embed = Embedding(MAXFEAT, 200,
+        embed = Embedding(MAXFEAT, embedding_matrix.shape[1],
             embeddings_initializer=Constant(embedding_matrix),
             input_length=MAXLEN,
             trainable=False
