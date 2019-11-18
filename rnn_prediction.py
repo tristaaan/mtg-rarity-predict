@@ -125,7 +125,7 @@ if __name__ == '__main__':
     )
 
     # train model
-    model = full_model(embedding_matrix=embedding_mat)
+    model = full_model(embedding_matrix=embedding_mat, variant=kw['model'])
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,

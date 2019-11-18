@@ -26,6 +26,8 @@ def visualize(m_test, x_test, y_test, model):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Visualize model results')
+    parser.add_argument('-model', '-m', help='model variant',
+                        default='lstm')
     parser.add_argument('-weights', '-w', help='the weights to use',
                         default=DEFAULT_WEIGHTS)
     parser.add_argument('-embedding', '-e', help='the word_embedding to use',
@@ -53,7 +55,7 @@ if __name__ == '__main__':
 
     # load model
     embedding_matrix = np.load(embedding_fname)
-    model = full_model(embedding_matrix=embedding_matrix)
+    model = full_model(embedding_matrix=embedding_matrix, variant=kw['model'])
     model.load_weights(weights_fname)
 
     # load data

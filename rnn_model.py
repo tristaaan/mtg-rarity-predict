@@ -23,7 +23,7 @@ def simple_model():
     )
     return model
 
-def full_model(embedding_matrix=None, model_type='lstm'):
+def full_model(embedding_matrix=None, variant='lstm'):
     # mana, type, description pipeline
     shape = len(FULL_INPUTS)
     mana_input = Input(shape=(shape,), name='costs')
@@ -45,14 +45,14 @@ def full_model(embedding_matrix=None, model_type='lstm'):
     else:
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
 
-    if model_type == 'conv':
+    if variant == 'conv':
         x = Conv1D(128, kernel_size=3, activation='relu')(embed)
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
         x = MaxPooling1D(5)(x)
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
         x = MaxPooling1D(3)(x)
-    elif model_type == 'lstm':
+    elif variant == 'lstm':
         x = Conv1D(64, kernel_size=3, activation='relu')(embed)
         x = AveragePooling1D(3)(x)
         units = 128
@@ -61,10 +61,10 @@ def full_model(embedding_matrix=None, model_type='lstm'):
         else:
             x = LSTM(units)(x)
     else:
-        print('unrecognized model type "%s"' % model_type)
+        print('unrecognized model type "%s"' % variant)
 
     text_pipeline = Dropout(0.5)(x)
-    if model_type == 'conv':
+    if variant == 'conv':
         text_pipeline = Flatten()(x)
 
     # concatenate and add FC layers
