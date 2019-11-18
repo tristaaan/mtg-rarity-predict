@@ -52,7 +52,7 @@ def full_model(embedding_matrix=None, model_type='lstm'):
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
         x = MaxPooling1D(3)(x)
-    else:
+    elif model_type == 'lstm':
         x = Conv1D(64, kernel_size=3, activation='relu')(embed)
         x = AveragePooling1D(3)(x)
         units = 128

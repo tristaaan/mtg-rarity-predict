@@ -43,6 +43,8 @@ if __name__ == '__main__':
                         default=DEFAULT_EMBEDDING)
     parser.add_argument('-tokenizer', '-t', help='choose tokenizer model',
                         default=DEFAULT_TOKENIZER)
+    parser.add_argument('-model', '-m', help='choose model version',
+                        default='lstm')
     args = parser.parse_args()
     kw = vars(args)
 

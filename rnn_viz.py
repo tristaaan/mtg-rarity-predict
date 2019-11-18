@@ -25,7 +25,7 @@ def visualize(m_test, x_test, y_test, model):
     plot_confusion_matrix(conf_mat, RARITIES, 'RNN')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Naive card prediction')
+    parser = argparse.ArgumentParser(description='Visualize model results')
     parser.add_argument('-weights', '-w', help='the weights to use',
                         default=DEFAULT_WEIGHTS)
     parser.add_argument('-embedding', '-e', help='the word_embedding to use',

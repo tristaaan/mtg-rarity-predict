@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 from gensim.models import KeyedVectors
-from rnn_constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING
+from rnn_constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING, GLOVE_DIR
 
 def get_train_test_split(df, inputs, train_split=0.8):
     '''
@@ -87,7 +87,6 @@ def normalize_costs(df):
 def pretrained_embedding_matrix(texts, word_index, \
                                 fname=DEFAULT_EMBEDDING):
     # load cache if exists
-    glove_dir = '.'
     if fname == DEFAULT_EMBEDDING:
         # build this if it doesn't exist
         if not os.path.isfile(fname):
@@ -107,7 +106,7 @@ def build_embedding_matrix(texts, word_index, size=200, from_glove=False):
     print('Building embedding matrix...')
     embeddings_index = {}
     if from_glove:
-        with open(os.path.join(glove_dir, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
+        with open(os.path.join(GLOVE_DIR, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
             for line in f:
                 word, coefs = line.split(maxsplit=1)
                 coefs = np.fromstring(coefs, 'f', sep=' ')
