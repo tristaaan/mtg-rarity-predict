@@ -50,11 +50,16 @@ def strip_text(card):
             # the group might have been removed if it was apart of a larger one
             if g in ret:
                 ret = ret.replace(g, cost_to_cmc(g))
+                # sometimes "pay" is alredy there
+                ret = ret.replace('pay pay', 'pay')
     return ret
 
 
 def join_type(types, subtypes):
-    joined = ' '.join(types).lower()
+    if types[0] == 'Tribal':
+        joined = ' '.join(types[1:]).lower()
+    else:
+        joined = ' '.join(types).lower()
     # do not consider these types
     if 'land' in joined or \
         'gate' in joined or \
@@ -87,6 +92,7 @@ def replace_instances(ability, regex, replacement):
 
 def cost_to_cmc(cost):
     cost_matches = re.findall(r'\{([\w\d]+(?:\/\w)?)\}', cost)
+    energy = False
     cmc_num = 0
     cmc_str = ['pay']
     for m in cost_matches:
@@ -96,14 +102,26 @@ def cost_to_cmc(cost):
         # cost can be 0
         elif m == '0':
             cmc_str.append('nothing')
+        # get energy
+        elif m == 'e':
+            cmc_num += 1
+            energy = True
         # x
         elif m == 'x':
             cmc_str.append('something')
         # it's a mana letter
         else:
             cmc_num += 1
-    if cmc_num > 0:
+    # energy case
+    if energy:
+        return str(cmc_num) + ' energy'
+    # 'pay something and 4'
+    elif len(cmc_str) > 1 and cmc_num > 0:
         return ' '.join(cmc_str) + ' and ' + str(cmc_num)
+    # 'pay 4'
+    elif len(cmc_str) == 1 and cmc_num > 0:
+        return ' '.join(cmc_str) + ' ' + str(cmc_num)
+    # 'pay nothing'
     return ' '.join(cmc_str)
 
 '''
@@ -150,7 +168,8 @@ def process_set(card_set, set_name, df):
         df = df.append({'set': set_name, 'name': c.name,
                        'rarity': c.rarity.lower(),
                        'text': description, 'type': joined_type,
-                       'legendary': 'Legendary' in c.supertypes,
+                       'legendary': ('Legendary' in c.supertypes) or \
+                                    ('Tribal' in c.types),
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
                        ignore_index=True)
     return df
