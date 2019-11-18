@@ -50,7 +50,7 @@ def strip_text(card):
             # the group might have been removed if it was apart of a larger one
             if g in ret:
                 ret = ret.replace(g, cost_to_cmc(g))
-                # sometimes "pay" is alredy there
+                # sometimes "pay" is already there
                 ret = ret.replace('pay pay', 'pay')
     return ret
 
