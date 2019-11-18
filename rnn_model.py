@@ -4,8 +4,8 @@ tf.set_random_seed(123)
 from keras import backend
 from keras.initializers import Constant
 from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Embedding, Input, LSTM, CuDNNLSTM, \
-    Conv1D, AveragePooling1D, concatenate
+from keras.layers import Dense, Dropout, Embedding, Flatten, Input, LSTM, CuDNNLSTM, \
+    Conv1D, MaxPooling1D, AveragePooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
 from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
@@ -23,7 +23,7 @@ def simple_model():
     )
     return model
 
-def full_model(embedding_matrix=None):
+def full_model(embedding_matrix=None, model_type='lstm'):
     # mana, type, description pipeline
     shape = len(FULL_INPUTS)
     mana_input = Input(shape=(shape,), name='costs')
@@ -44,15 +44,28 @@ def full_model(embedding_matrix=None):
     # otherwise use basic RNN embedding
     else:
         embed = Embedding(input_dim=MAXFEAT, output_dim=64)(desc_input)
-    x = Conv1D(64, kernel_size=3, activation='relu')(embed)
-    x = AveragePooling1D()(x)
-    # use a GPU if available
-    units = 128
-    if len(backend.tensorflow_backend._get_available_gpus()):
-        x = CuDNNLSTM(units)(x)
+
+    if model_type == 'conv':
+        x = Conv1D(128, kernel_size=3, activation='relu')(embed)
+        x = Conv1D(128, kernel_size=3, activation='relu')(x)
+        x = MaxPooling1D(5)(x)
+        x = Conv1D(128, kernel_size=3, activation='relu')(x)
+        x = Conv1D(128, kernel_size=3, activation='relu')(x)
+        x = MaxPooling1D(3)(x)
     else:
-        x = LSTM(units)(x)
+        x = Conv1D(64, kernel_size=3, activation='relu')(embed)
+        x = AveragePooling1D(3)(x)
+        units = 128
+        if len(backend.tensorflow_backend._get_available_gpus()):
+            x = CuDNNLSTM(units)(x)
+        else:
+            x = LSTM(units)(x)
+    else:
+        print('unrecognized model type "%s"' % model_type)
+
     text_pipeline = Dropout(0.5)(x)
+    if model_type == 'conv':
+        text_pipeline = Flatten()(x)
 
     # concatenate and add FC layers
     cat = concatenate([mana_pipeline, text_pipeline])
