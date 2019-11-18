@@ -9,3 +9,4 @@ FULL_INPUTS = ['type', 'C', 'R', 'U', 'B', 'G', 'W', 'X',  \
   'U/R', 'W/B', 'W/U', 'legendary']
 
 DEFAULT_EMBEDDING = path.join('tmp', 'embedding_matrix.npy')
+DEFAULT_TOKENIZER = path.join('tmp', 'default_tokenizer.pickle'

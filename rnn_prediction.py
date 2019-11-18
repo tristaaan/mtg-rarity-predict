@@ -18,7 +18,8 @@ from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, pretrained_embedding_matrix
 from rnn_model import full_model
 from rnn_viz import visualize
-from rnn_constants import MAXLEN, FULL_INPUTS, DEFAULT_EMBEDDING
+from rnn_constants import MAXLEN, FULL_INPUTS, \
+    DEFAULT_EMBEDDING, DEFAULT_TOKENIZER
 from utils import normalize_costs, make_folder
 
 config = tf.ConfigProto()
@@ -37,9 +38,11 @@ def plot_graphs(history):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Naive card predicion')
+    parser = argparse.ArgumentParser(description='Naive card prediction')
     parser.add_argument('-embedding', '-e', help='choose word embedding',
                         default=DEFAULT_EMBEDDING)
+    parser.add_argument('-tokenizer', '-t', help='choose tokenizer model',
+                        default=DEFAULT_TOKENIZER)
     args = parser.parse_args()
     kw = vars(args)
 
@@ -72,11 +75,21 @@ if __name__ == '__main__':
     # tokenize descriptions
     corpus = cards['text'].str.split().values
     tokenizer = Tokenizer()
-    with open(path.join('tmp', 'tokenizer.pickle'), 'rb') as handle:
-        tokenizer = pickle.load(handle)
-    # tokenizer.fit_on_texts(corpus)
-    print('Found %s unique tokens.' % len(tokenizer.word_index))
+    fname = kw['tokenizer']
+    if path.isfile(fname):
+        print('Using tokenizer: %s' % fname)
+        with open(DEFAULT_TOKENIZER, 'rb') as handle:
+            tokenizer = pickle.load(handle)
+    elif fname == DEFAULT_TOKENIZER:
+        print('Building default tokenizer... (only need to do this once)')
+        tokenizer.fit_on_texts(corpus)
+        with open(DEFAULT_TOKENIZER, 'wb') as handle:
+            pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    else:
+        print('Tokenizer file not found: "%s"' % fname)
+        exit()
 
+    print('Found %s unique tokens.' % len(tokenizer.word_index))
     embedding_mat = pretrained_embedding_matrix(
         corpus,
         tokenizer.word_index,

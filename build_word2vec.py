@@ -107,8 +107,9 @@ if __name__ == '__main__':
     corpus = cards['text'].str.split().values
     tokenizer = Tokenizer(num_words=MAXLEN)
     tokenizer.fit_on_texts(corpus)
-    # save for later?
-    with open(path.join('tmp','tokenizer.pickle'), 'wb') as handle:
+    # save for later
+    fname = path.join('tmp','mtg_tokenizer_%s.pickle' % size)
+    with open(fname, 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Word2Vec
