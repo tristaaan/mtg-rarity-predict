@@ -51,7 +51,7 @@ def full_model(embedding_matrix=None, variant='lstm'):
         x = MaxPooling1D(5)(x)
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
         x = Conv1D(128, kernel_size=3, activation='relu')(x)
-        x = MaxPooling1D(3)(x)
+        x = MaxPooling1D(3, stride=1)(x)
     elif variant == 'lstm':
         x = Conv1D(64, kernel_size=3, activation='relu')(embed)
         x = AveragePooling1D(3)(x)
@@ -63,7 +63,7 @@ def full_model(embedding_matrix=None, variant='lstm'):
     else:
         print('unrecognized model type "%s"' % variant)
 
-    text_pipeline = Dropout(0.5)(x)
+    text_pipeline = Dropout(0.5, seed=456)(x)
     if variant == 'conv':
         text_pipeline = Flatten()(x)
 
