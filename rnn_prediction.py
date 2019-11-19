@@ -125,7 +125,8 @@ if __name__ == '__main__':
     )
 
     # train model
-    model = full_model(embedding_matrix=embedding_mat, variant=kw['model'])
+    variant = kw['model']
+    model = full_model(embedding_matrix=embedding_mat, variant=variant)
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
         batch_size=batch_size,
@@ -139,4 +140,4 @@ if __name__ == '__main__':
     print('\nscore:    %.02f' % score)
     print('accuracy: %.02f\n' % acc)
     plot_graphs(hist)
-    visualize(manas_test, x_test, y_test, model)
+    visualize(manas_test, x_test, y_test, model, variant=variant)

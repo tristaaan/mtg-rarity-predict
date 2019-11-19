@@ -17,12 +17,15 @@ from rnn_model import full_model
 from rnn_constants import MAXLEN, RARITIES, FULL_INPUTS, \
     DEFAULT_WEIGHTS, DEFAULT_EMBEDDING, DEFAULT_TOKENIZER
 
-def visualize(m_test, x_test, y_test, model):
+def visualize(m_test, x_test, y_test, model, variant=None):
     # viz accuracy
     print('predicting test set...')
     y_pred = model.predict([m_test, x_test])
     conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
-    plot_confusion_matrix(conf_mat, RARITIES, 'RNN')
+    name = 'RNN'
+    if variant is not None:
+        name += '_' + variant
+    plot_confusion_matrix(conf_mat, RARITIES, name)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Visualize model results')
@@ -55,7 +58,8 @@ if __name__ == '__main__':
 
     # load model
     embedding_matrix = np.load(embedding_fname)
-    model = full_model(embedding_matrix=embedding_matrix, variant=kw['model'])
+    variant = kw['model']
+    model = full_model(embedding_matrix=embedding_matrix, variant=variant)
     model.load_weights(weights_fname)
 
     # load data
@@ -81,4 +85,4 @@ if __name__ == '__main__':
     x_test = tokenizer.texts_to_sequences(x_test)
     x_test = pad_sequences(x_test, maxlen=MAXLEN)
 
-    visualize(m_test, x_test, y_test, model)
+    visualize(m_test, x_test, y_test, model, variant=variant)
