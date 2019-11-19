@@ -8,7 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-from rnn_constants import MAXFEAT, RARITIES
+from gensim.models import KeyedVectors
+from rnn_constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING, GLOVE_DIR
 
 def get_train_test_split(df, inputs, train_split=0.8):
     '''
@@ -83,42 +84,52 @@ def normalize_costs(df):
     return (df - df.mean()) / (df.max() - df.min())
 
 
-def pretrained_embedding_matrix(texts, word_index):
+def pretrained_embedding_matrix(texts, word_index, \
+                                fname=DEFAULT_EMBEDDING):
     # load cache if exists
-    glove_dir = '.'
-    cache_dir = 'tmp'
-    fname = 'embedding_matrix.npy'
-    cache_path = os.path.join(cache_dir, fname)
-    if os.path.isfile(cache_path):
-        print('Using cached embedding matrix...')
-        return np.load(cache_path)
+    if fname == DEFAULT_EMBEDDING:
+        # build this if it doesn't exist
+        if not os.path.isfile(fname):
+            return build_embedding_matrix(texts, word_index, from_glove=True)
+        print('Using default Glove embedding matrix...')
+        return np.load(fname)
+    # load homegrown embedding
+    elif os.path.isfile(fname):
+        print('Using home-grown word2vec...')
+        return np.load(fname)
+    # else: file doesn't exist
+    print('embedding file "%s" not found' % fname)
+    exit()
 
+
+def build_embedding_matrix(texts, word_index, size=200, from_glove=False):
     print('Building embedding matrix...')
     embeddings_index = {}
-    size = 200
-    with open(os.path.join(glove_dir, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
-        for line in f:
-            word, coefs = line.split(maxsplit=1)
-            coefs = np.fromstring(coefs, 'f', sep=' ')
-            embeddings_index[word] = coefs
+    if from_glove:
+        with open(os.path.join(GLOVE_DIR, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
+            for line in f:
+                word, coefs = line.split(maxsplit=1)
+                coefs = np.fromstring(coefs, 'f', sep=' ')
+                embeddings_index[word] = coefs
+    else:
+        embeddings_index = word_index
 
     embedding_matrix = np.random.normal(size=(MAXFEAT, size))
 
     non = 0
-    # num = 0
     for word, index in word_index.items():
-        # if word in '1234567890':
-        #     num += 1
-        #     continue
         embedding_vector = embeddings_index.get(word)
         if embedding_vector is not None:
             embedding_matrix[index] = embedding_vector
         else:
             non += 1
     print(non, 'words did not have embed mappings')
-    # print(num, 'words were numerics')
 
-    np.save(os.path.join(cache_dir, fname), embedding_matrix)
+    if from_glove:
+        fname = DEFAULT_EMBEDDING
+    else:
+        fname = os.path.join('tmp', 'mtg_word2vec_%d' % size)
+    np.save(fname, embedding_matrix)
     return embedding_matrix
 
 
