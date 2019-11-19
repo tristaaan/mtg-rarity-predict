@@ -4,8 +4,8 @@ tf.set_random_seed(123)
 from keras import backend
 from keras.initializers import Constant
 from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Embedding, Flatten, Input, LSTM, CuDNNLSTM, \
-    Conv1D, MaxPooling1D, AveragePooling1D, concatenate
+from keras.layers import Dense, Dropout, Embedding, Flatten, Input, \
+    LSTM, CuDNNLSTM, Conv1D, MaxPooling1D, AveragePooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
 from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
@@ -54,7 +54,7 @@ def full_model(embedding_matrix=None, variant='lstm'):
         x = MaxPooling1D(3, stride=1)(x)
     elif variant == 'lstm':
         x = Conv1D(64, kernel_size=3, activation='relu')(embed)
-        x = AveragePooling1D(3)(x)
+        x = AveragePooling1D()(x)
         units = 128
         if len(backend.tensorflow_backend._get_available_gpus()):
             x = CuDNNLSTM(units)(x)
