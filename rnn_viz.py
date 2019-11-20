@@ -20,7 +20,7 @@ from rnn_constants import MAXLEN, RARITIES, FULL_INPUTS, \
 def visualize(m_test, x_test, y_test, model, variant=None):
     # viz accuracy
     print('predicting test set...')
-    y_pred = model.predict([m_test, x_test])
+    y_pred = model.predict([m_test, x_test], batch_size=48)
     conf_mat = confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1))
     name = 'RNN'
     if variant is not None:
