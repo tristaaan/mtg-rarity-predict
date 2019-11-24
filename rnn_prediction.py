@@ -109,9 +109,12 @@ if __name__ == '__main__':
     x_test = pad_sequences(x_test, maxlen=MAXLEN)
 
     # save model as we go
-    make_folder('tmp')
+    variant = kw['model']
+    embedding_name = path.split(kw['embedding'])[1][:3]
+    make_folder('models')
     checkpointer = ModelCheckpoint(
-        filepath=path.join('tmp','weights-rnn.hdf5'),
+        filepath=path.join('models','weights-rnn-%s-%d-%s.hdf5' % \
+            (embedding_name, embedding_mat.shape[1], variant)),
         monitor='loss',
         verbose=1,
         save_best_only=True
@@ -125,7 +128,6 @@ if __name__ == '__main__':
     )
 
     # train model
-    variant = kw['model']
     model = full_model(embedding_matrix=embedding_mat, variant=variant)
     hist = model.fit([manas_train, x_train], y_train,
         validation_data=([manas_valid, x_valid], y_valid),
