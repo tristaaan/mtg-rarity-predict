@@ -33,6 +33,8 @@ if __name__ == '__main__':
                         default='lstm')
     parser.add_argument('-weights', '-w', help='the weights to use',
                         default=DEFAULT_WEIGHTS)
+    parser.add_argument('-size', '-s', help='size of word vectors',
+                        type=int, default=200)
     parser.add_argument('-embedding', '-e', help='the word_embedding to use',
                         default=DEFAULT_EMBEDDING)
     parser.add_argument('-tokenizer', '-t', help='the weights to use',
@@ -40,15 +42,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
     kw = vars(args)
 
+    embedding_fname = kw['embedding']
+    wv_size = kw['size']
+    if 'zzz' in embedding_fname:
+        embedding_fname = embedding_fname.replace('zzz', str(wv_size))
+
     # check file existence before we load everything into memory
+    if not path.isfile(embedding_fname):
+        print('embedding file "%s" does not exist' % embedding_fname)
+        exit()
+
     weights_fname = kw['weights']
     if not path.isfile(weights_fname):
         print('weights file "%s" does not exist' % weights_fname)
-        exit()
-
-    embedding_fname = kw['embedding']
-    if not path.isfile(embedding_fname):
-        print('embedding file "%s" does not exist' % embedding_fname)
         exit()
 
     tokenizer_fname = kw['tokenizer']

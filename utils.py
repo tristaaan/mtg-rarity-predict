@@ -84,13 +84,14 @@ def normalize_costs(df):
     return (df - df.mean()) / (df.max() - df.min())
 
 
-def pretrained_embedding_matrix(texts, word_index, \
+def pretrained_embedding_matrix(texts, word_index, size=200, \
                                 fname=DEFAULT_EMBEDDING):
     # load cache if exists
-    if fname == DEFAULT_EMBEDDING:
+    if fname == DEFAULT_EMBEDDING.replace('zzz', str(size)):
         # build this if it doesn't exist
         if not os.path.isfile(fname):
-            return build_embedding_matrix(texts, word_index, from_glove=True)
+            return build_embedding_matrix(texts, word_index,
+                size=size, from_glove=True)
         print('Using default Glove embedding matrix...')
         return np.load(fname)
     # load homegrown embedding
@@ -103,7 +104,7 @@ def pretrained_embedding_matrix(texts, word_index, \
 
 
 def build_embedding_matrix(texts, word_index, size=200, from_glove=False):
-    print('Building embedding matrix...')
+    print('Building embedding matrix of size %d...' % size)
     embeddings_index = {}
     if from_glove:
         with open(os.path.join(GLOVE_DIR, 'glove.6B.%dd.txt' % size), encoding='UTF8') as f:
@@ -126,7 +127,7 @@ def build_embedding_matrix(texts, word_index, size=200, from_glove=False):
     print(non, 'words did not have embed mappings')
 
     if from_glove:
-        fname = DEFAULT_EMBEDDING
+        fname = DEFAULT_EMBEDDING.replace('zzz', str(size))
     else:
         fname = os.path.join('tmp', 'mtg_word2vec_%d' % size)
     np.save(fname, embedding_matrix)

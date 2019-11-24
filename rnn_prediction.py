@@ -25,20 +25,23 @@ from utils import normalize_costs, make_folder
 config = tf.ConfigProto()
 tf.Session(config = config)
 
-def plot_graphs(history):
+def plot_graphs(history, size, variant):
     fig = plt.figure(figsize=(8,5))
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'], '')
     plt.xlabel("Epochs")
     plt.ylabel('loss')
     plt.legend(['loss', 'val_loss'])
-    fname = 'rnn-training-curve.png'
+    fname = 'rnn-training-curve-%d-%s.png' % (size, variant)
     fig.savefig(fname)
     print('Training curves written as: "%s"' % fname)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Naive card prediction')
+    parser.add_argument('-size', '-s', help='size of word vectors, \
+                        not necessary if passing a embedding file',
+                        type=int, default=200)
     parser.add_argument('-embedding', '-e', help='choose word embedding',
                         default=DEFAULT_EMBEDDING)
     parser.add_argument('-tokenizer', '-t', help='choose tokenizer model',
@@ -47,6 +50,10 @@ if __name__ == '__main__':
                         default='lstm')
     args = parser.parse_args()
     kw = vars(args)
+    embedding_fname = kw['embedding']
+    wv_size = kw['size']
+    if 'zzz' in embedding_fname:
+        embedding_fname = embedding_fname.replace('zzz', str(wv_size))
 
     batch_size = 48
     epochs = 50
@@ -95,7 +102,8 @@ if __name__ == '__main__':
     embedding_mat = pretrained_embedding_matrix(
         corpus,
         tokenizer.word_index,
-        kw['embedding']
+        size=wv_size,
+        fname=embedding_fname
     )
 
     # tokenize train, validation, and test sets
@@ -110,7 +118,7 @@ if __name__ == '__main__':
 
     # save model as we go
     variant = kw['model']
-    embedding_name = path.split(kw['embedding'])[1][:3]
+    embedding_name = path.split(embedding_fname)[1][:3]
     make_folder('models')
     checkpointer = ModelCheckpoint(
         filepath=path.join('models','weights-rnn-%s-%d-%s.hdf5' % \
@@ -141,5 +149,5 @@ if __name__ == '__main__':
                                 batch_size=batch_size)
     print('\nscore:    %.02f' % score)
     print('accuracy: %.02f\n' % acc)
-    plot_graphs(hist)
+    plot_graphs(hist, embedding_mat.shape[1], variant)
     visualize(manas_test, x_test, y_test, model, variant=variant)
