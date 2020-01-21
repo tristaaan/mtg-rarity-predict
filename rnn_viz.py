@@ -14,7 +14,7 @@ from keras.preprocessing.text import Tokenizer
 from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, plot_confusion_matrix
 from rnn_model import full_model
-from rnn_constants import MAXLEN, RARITIES, FULL_INPUTS, \
+from constants import MAXLEN, RARITIES, FULL_INPUTS, \
     DEFAULT_WEIGHTS, DEFAULT_EMBEDDING, DEFAULT_TOKENIZER
 
 def visualize(m_test, x_test, y_test, model, variant=None):

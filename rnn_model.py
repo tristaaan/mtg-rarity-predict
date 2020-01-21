@@ -8,7 +8,7 @@ from keras.layers import Dense, Dropout, Embedding, Flatten, Input, \
     LSTM, CuDNNLSTM, Conv1D, MaxPooling1D, AveragePooling1D, concatenate
 from keras.metrics import categorical_accuracy
 
-from rnn_constants import MAXLEN, MAXFEAT, FULL_INPUTS
+from constants import MAXLEN, MAXFEAT, FULL_INPUTS
 
 def simple_model():
     model = Sequential()

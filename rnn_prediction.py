@@ -18,7 +18,7 @@ from sklearn.metrics import confusion_matrix
 from utils import get_train_test_split, pretrained_embedding_matrix
 from rnn_model import full_model
 from rnn_viz import visualize
-from rnn_constants import MAXLEN, FULL_INPUTS, \
+from constants import MAXLEN, FULL_INPUTS, \
     DEFAULT_EMBEDDING, DEFAULT_TOKENIZER
 from utils import normalize_costs, make_folder
 

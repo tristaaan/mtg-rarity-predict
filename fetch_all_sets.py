@@ -6,11 +6,14 @@ from os import path
 from mtgsdk import Card
 
 from utils import make_folder
+from constants import SETS as sets
+
 
 def card_to_json(c):
     c = c.__dict__
     del c['foreign_names']
     return c
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fetch MGT sets')
@@ -20,20 +23,6 @@ if __name__ == '__main__':
     kw = vars(args)
     start_at = kw['start']
 
-    # Expansion and core sets back until October 2015
-    # https://mtg.gamepedia.com/Core_set
-    # https://mtg.gamepedia.com/Set#List_of_Magic_expansions_and_sets
-    sets = ['M10', 'ZEN', 'WWK', 'ROE',
-            'M11', 'SOM', 'MBS', 'NPH',
-            'M12', 'ISD', 'DKA', 'AVR',
-            'M13', 'RTR', 'GTC', 'DGM',
-            'M14', 'THS', 'BNG', 'JOU',
-            'M15', 'KTK', 'FRF', 'DTK',
-            'ORI', 'BFZ', 'OGW', 'SOI',
-            'EMN', 'KLD', 'AER', 'AKH',
-            'HOU', 'XLN', 'RIX', 'DOM',
-            'M19', 'GRN', 'RNA', 'WAR',
-            'M20', 'ELD']
     start_index = sets.index(start_at.upper())
     dir_name = 'sets'
     make_folder(dir_name)

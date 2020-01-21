@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 from gensim.models import KeyedVectors
-from rnn_constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING, GLOVE_DIR
+from constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING, GLOVE_DIR
 
 def get_train_test_split(df, inputs, train_split=0.8):
     '''

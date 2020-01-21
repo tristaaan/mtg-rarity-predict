@@ -12,7 +12,7 @@ from sklearn.manifold import TSNE
 
 from keras.preprocessing.text import Tokenizer
 from utils import build_embedding_matrix
-from rnn_constants import MAXLEN
+from constants import MAXLEN
 
 ev_keyword_actions = [
     'activate',
