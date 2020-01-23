@@ -9,15 +9,16 @@ from os import path
 
 class mCard(object):
     def __init__(self, json_card):
-        self.name   = json_card['name']
-        self.rarity = json_card['rarity']
-        self.text   = json_card['text']
+        self.name     = json_card['name']
+        self.rarity   = json_card['rarity']
+        self.text     = json_card['text']
         self.original_text = json_card['original_text']
         self.supertypes = json_card['supertypes']
         self.types     = json_card['types']
         self.subtypes  = json_card['subtypes']
         self.cmc       = json_card['cmc']
         self.mana_cost = json_card['mana_cost']
+        self.image_url = json_card['image_url']
 
 
 def strip_text(card):
@@ -170,6 +171,7 @@ def process_set(card_set, set_name, df):
                        'text': description, 'type': joined_type,
                        'legendary': ('Legendary' in c.supertypes) or \
                                     ('Tribal' in c.types),
+                       'image_url': c.image_url,
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
                        ignore_index=True)
     return df

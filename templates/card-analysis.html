@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Predictions</title>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", () => {
+            const lazyImages = [].slice.call(document.querySelectorAll('.card-img'));
+
+            let lazyImageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        let lazyImage = entry.target;
+                        lazyImage.src = lazyImage.dataset.src;
+                        lazyImageObserver.unobserve(lazyImage);
+                    }
+                });
+            });
+
+            lazyImages.forEach((lazyImage) => {
+                lazyImageObserver.observe(lazyImage);
+            });
+        });
+    </script>
+    <style type="text/css">
+        .card-pred {
+            float: left;
+            border: 1px solid gray;
+            margin: 0.75em;
+            padding: 10px;
+        }
+
+        .card-title {
+            margin: 0.15em 0 0.5em;
+        }
+
+        .stats {
+            display: flex;
+            flex-direction: row;
+            margin-bottom: 5px;
+        }
+
+        .stat-item {
+            height: 40px;
+            margin: 0 9px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .stat-bar {
+            overflow: hidden;
+            display: block;
+            padding: 0 4px;
+            margin: 4px 0;
+            background-color: blue;
+            width: 20px;
+        }
+
+        .stat-label {
+
+        }
+    </style>
+</head>
+<body>
+    {% set rarities = ['c', 'u', 'r', 'm'] %}
+    {% for pred in predictions %}
+        <div class="card-pred">
+            <h4 class="card-title">{{ cards[loop.index0].name }}</h4>
+            <img class="card-img"
+                src=""
+                data-src="{{ cards[loop.index0].image_url }}" />
+            <div class="stats">
+                {% for p in pred %}
+                    <div class="stat-item">
+                        <span class="stat-bar" style="height: {{ p*100 }}%;"></span>
+                        <span>{{ rarities[loop.index0] }}: {{ '%0.01f%%' | format(p*100) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <span>Actual: <em>{{ cards[loop.index0].rarity }}</em></span>
+        </div>
+    {% endfor %}
+</body>
+</html>
