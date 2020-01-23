@@ -19,6 +19,7 @@ class mCard(object):
         self.cmc       = json_card['cmc']
         self.mana_cost = json_card['mana_cost']
         self.image_url = json_card['image_url']
+        self.printings = json_card['printings']
 
 
 def strip_text(card):
@@ -153,18 +154,23 @@ def mana_cost_to_dict(cost):
     return cost_dict
 
 
-def process_set(card_set, set_name, df):
+def process_set(card_set, set_name, duplicates, df):
     for jc in card_set:
         if jc['image_url'] == None:
             continue
         c = mCard(jc)
+
         joined_type = join_type(c.types, c.subtypes)
         description = strip_text(c)
         # skip if: non-allowed type, no description, or no mana cost.
         if joined_type == None or \
             len(description) == 0 or \
-            c.mana_cost == None:
+            c.mana_cost == None or \
+            c.name in duplicates.keys():
             continue
+
+        if len(c.printings) > 1:
+            duplicates[c.name] = c.printings
 
         df = df.append({'set': set_name, 'name': c.name,
                        'rarity': c.rarity.lower(),
@@ -174,7 +180,7 @@ def process_set(card_set, set_name, df):
                        'image_url': c.image_url,
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
                        ignore_index=True)
-    return df
+    return df, duplicates
 
 
 if __name__ == '__main__':
@@ -184,12 +190,13 @@ if __name__ == '__main__':
 
     # initialize dataframe and iterate through files
     df = pd.DataFrame(columns=columns)
+    duplicates = {}
     for fname in files:
         set_name = path.basename(fname).split('.')[0]
         print('preprocessing %s' % set_name)
         with open(fname, 'r') as card_set_f:
             card_set = json.load(card_set_f)
-            df = process_set(card_set, set_name, df)
+            df, duplicates = process_set(card_set, set_name, duplicates, df)
 
     rare_counts = df['rarity'].value_counts(dropna=False)
     print('rarities:', rare_counts)
