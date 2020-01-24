@@ -12,14 +12,14 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 
 from rnn_model import full_model
-from utils import get_train_test_split
+from utils import get_all_cards
 from constants import SETS, FULL_INPUTS, DEFAULT_WEIGHTS, DEFAULT_EMBEDDING, \
   DEFAULT_TOKENIZER, MAXLEN
 
 
 def arg_set(s):
     arr = list(map(int, s.split(',')))
-    assert len(arr) >= 0, 'there must be some listed sets'
+    assert len(arr) >= 0, 'there must be at least one set listed'
     for name in arr:
       assert name.upper() in SETS, 'Set name not valid: %s' % name
     return arr
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('-tokenizer', '-t', help='the weights to use',
                         default=DEFAULT_TOKENIZER)
     parser.add_argument('-sets', help='sets to visualize', action='store',
-                        default=['M20'],
+                        default=['GRN', 'RNA', 'WAR', 'M20', 'ELD'],
                         type=arg_set)
 
     args = parser.parse_args()
@@ -75,8 +75,9 @@ if __name__ == '__main__':
     cards = cards[cards['set'].isin(kw['sets'])]
 
     # fetch cost and descriptions
-    _, _, costs, _ = get_train_test_split(cards, FULL_INPUTS, train_split=0)
-    _, _, descs, _ = get_train_test_split(cards, ['text'], train_split=0)
+    print('Filtering for sets: %s' % kw['sets'])
+    costs = get_all_cards(cards, FULL_INPUTS)
+    descs = get_all_cards(cards, ['text'])
 
 
     # tokenize test set
