@@ -3,6 +3,7 @@
 <head>
     <title>Predictions</title>
     <script type="text/javascript">
+        // lazy image loading
         document.addEventListener("DOMContentLoaded", () => {
             const lazyImages = [].slice.call(document.querySelectorAll('.card-img'));
 
@@ -22,11 +23,29 @@
         });
     </script>
     <style type="text/css">
+        body {
+            margin: 0;
+        }
+
+        nav {
+            position: fixed;
+            border-bottom: 1px solid black;
+            width: 100%;
+            background-color: #ddd;
+            margin: 0;
+            padding: 8px 14px;
+        }
+
+        .spacer {
+            height: 38px;
+        }
+
         .card-pred {
             float: left;
             border: 1px solid gray;
-            margin: 0.75em;
-            padding: 10px;
+            margin: 0.25em;
+            padding: 7px;
+            width: 264px;
         }
 
         .card-title {
@@ -40,18 +59,22 @@
         }
 
         .stat-item {
-            height: 40px;
             margin: 0 9px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
+            align-items: flex-start;
+        }
+
+        .stat-bar-container {
+          height: 30px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
         }
 
         .stat-bar {
             overflow: hidden;
-            display: block;
-            padding: 0 4px;
-            margin: 4px 0;
             background-color: blue;
             width: 20px;
         }
@@ -62,9 +85,26 @@
     </style>
 </head>
 <body>
+    <nav>
+        Set:
+        <select class="set-selector">
+            <option value="{{expansions[0]}}" selected>{{ expansions[0] }}</option>
+            {% for expansion in expansions[1:] %}
+                <option value="{{ expansion }}">{{ expansion }}</option>
+            {% endfor %}
+        </select>
+        <label>
+            Show only misclassified:
+            <input class="hide-correct" type="checkbox" name="corrector">
+        </label>
+    </nav>
+    <div class="spacer"></div>
     {% set rarities = ['c', 'u', 'r', 'm'] %}
     {% for pred in predictions %}
-        <div class="card-pred">
+        <div class="card-pred"
+            data-set="{{ cards[loop.index0].set }}"
+            data-correct="{{ cards[loop.index0].rarity[0] == rarities[pred|argmax] }}"
+        >
             <h4 class="card-title">{{ cards[loop.index0].name }}</h4>
             <img class="card-img"
                 src=""
@@ -72,7 +112,10 @@
             <div class="stats">
                 {% for p in pred %}
                     <div class="stat-item">
-                        <span class="stat-bar" style="height: {{ p*100 }}%;"></span>
+                        <div class="stat-bar-container">
+                            <span class="stat-bar" style="height: {{ p*100 }}%;">
+                            </span>
+                        </div>
                         <span>{{ rarities[loop.index0] }}: {{ '%0.01f%%' | format(p*100) }}</span>
                     </div>
                 {% endfor %}
@@ -80,5 +123,41 @@
             <span>Actual: <em>{{ cards[loop.index0].rarity }}</em></span>
         </div>
     {% endfor %}
+    <script type="text/javascript">
+        // card filtering interface
+        const allCards = document.querySelectorAll('.card-pred');
+        function displayCard(card, criteria) {
+            if (criteria(card.dataset.set, card.dataset.correct)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+
+        // hide or display cards based on form criteria
+        function updateFilter() {
+            const choosenSet = selector.value;
+            const hideCorrect = checkbox.checked ? 'True' : 'False';
+            allCards.forEach((c) => {
+                displayCard(c, (set, correct) => {
+                    if (hideCorrect === 'False') {
+                        return set === choosenSet;
+                    }
+                    return (
+                        set === choosenSet &&
+                        correct !== hideCorrect
+                    );
+                });
+            })
+        }
+
+        // define form controls, setup listeners to filter the cards
+        const selector = document.querySelector('.set-selector');
+        selector.addEventListener('change', updateFilter);
+
+        const checkbox = document.querySelector('.hide-correct');
+        checkbox.addEventListener('change', updateFilter);
+        updateFilter();
+    </script>
 </body>
 </html>

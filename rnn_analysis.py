@@ -25,6 +25,10 @@ def arg_set(s):
     return arr
 
 
+def argmax(arr):
+    return np.argmax(arr)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Analyze model results')
     parser.add_argument('-model', '-m', help='model variant',
@@ -93,12 +97,17 @@ if __name__ == '__main__':
         loader=FileSystemLoader('./templates'),
         autoescape=select_autoescape(['html', 'xml'])
     )
+    env.filters['argmax'] = argmax
     template = env.get_template('card-analysis.html')
     with open('rnn-analysis.html', 'w') as output:
         cards_fmt = cards.to_dict('records')
-        output.write(template.render(
-          cards=cards_fmt,
-          predictions=predictions)
+        expansions = np.unique(cards.loc[:,['set']].values).tolist()
+        output.write(
+            template.render(
+                cards=cards_fmt,
+                predictions=predictions,
+                expansions=expansions
+            )
         )
 
     print('done')
