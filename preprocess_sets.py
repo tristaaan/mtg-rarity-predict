@@ -53,6 +53,8 @@ def strip_text(card):
                 ret = ret.replace(g, cost_to_cmc(g))
                 # sometimes "pay" is already there
                 ret = ret.replace('pay pay', 'pay')
+                # don't override adding mana
+                ret = ret.replace('add pay', '')
     return ret
 
 
