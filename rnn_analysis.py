@@ -29,6 +29,12 @@ def argmax(arr):
     return np.argmax(arr)
 
 
+def distance(args):
+    r1,r2 = args
+    arr = ['c', 'u', 'r', 'm']
+    return abs(arr.index(r1) - arr.index(r2))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Analyze model results')
     parser.add_argument('-model', '-m', help='model variant',
@@ -98,6 +104,7 @@ if __name__ == '__main__':
         autoescape=select_autoescape(['html', 'xml'])
     )
     env.filters['argmax'] = argmax
+    env.filters['distance'] = distance
     template = env.get_template('card-analysis.html')
     with open('rnn-analysis.html', 'w') as output:
         cards_fmt = cards.to_dict('records')

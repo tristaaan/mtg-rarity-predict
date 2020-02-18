@@ -97,13 +97,26 @@
             Show only misclassified:
             <input class="hide-correct" type="checkbox" name="corrector">
         </label>
+        <label
+            class="distance-selector-label"
+            style="display: none;"
+        >
+            Distance:
+            <select class="distance-selector">
+                <option value="-1" selected >Any</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </label>
     </nav>
     <div class="spacer"></div>
     {% set rarities = ['c', 'u', 'r', 'm'] %}
     {% for pred in predictions %}
         <div class="card-pred"
+            style="display: none;"
             data-set="{{ cards[loop.index0].set }}"
-            data-correct="{{ cards[loop.index0].rarity[0] == rarities[pred|argmax] }}"
+            data-distance="{{ (cards[loop.index0].rarity[0], rarities[pred|argmax]) | distance }}"
         >
             <h4 class="card-title">{{ cards[loop.index0].name }}</h4>
             <img class="card-img"
@@ -124,28 +137,55 @@
         </div>
     {% endfor %}
     <script type="text/javascript">
+        function hide(el) {
+            if (Array.isArray(el)) {
+                el.forEach((e) => { e.style.display = 'none'; });
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function show(el) {
+            if (Array.isArray(el)) {
+                el.forEach((e) => { e.style.display = ''; });
+            } else {
+                el.style.display = '';
+            }
+        }
+
         // card filtering interface
         const allCards = document.querySelectorAll('.card-pred');
         function displayCard(card, criteria) {
-            if (criteria(card.dataset.set, card.dataset.correct)) {
-                card.style.display = '';
+            if (criteria(card.dataset.set, card.dataset.distance)) {
+                show(card);
             } else {
-                card.style.display = 'none';
+                hide(card);
             }
         }
 
         // hide or display cards based on form criteria
         function updateFilter() {
             const choosenSet = selector.value;
-            const hideCorrect = checkbox.checked ? 'True' : 'False';
+            const showCorrect = !checkbox.checked;
+            const distance = parseInt(distanceSelector.value, 10);
+            let comp = null;
+            if (!showCorrect && distance !== -1) {
+                comp = (a,b) => a == distance;
+                show(distanceSelectorLabel);
+            } else if (!showCorrect) {
+                comp = (a,b) => a != 0;
+                show(distanceSelectorLabel);
+            } else {
+                hide(distanceSelectorLabel);
+            }
             allCards.forEach((c) => {
-                displayCard(c, (set, correct) => {
-                    if (hideCorrect === 'False') {
+                displayCard(c, (set, distance) => {
+                    if (showCorrect) {
                         return set === choosenSet;
                     }
                     return (
                         set === choosenSet &&
-                        correct !== hideCorrect
+                        comp(parseInt(c.dataset.distance, 10))
                     );
                 });
             })
@@ -157,6 +197,11 @@
 
         const checkbox = document.querySelector('.hide-correct');
         checkbox.addEventListener('change', updateFilter);
+
+        const distanceSelector = document.querySelector('.distance-selector');
+        const distanceSelectorLabel = document.querySelector('.distance-selector-label');
+        distanceSelector.addEventListener('change', updateFilter);
+
         updateFilter();
     </script>
 </body>
