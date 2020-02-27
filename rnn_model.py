@@ -1,5 +1,5 @@
 import tensorflow as tf
-tf.set_random_seed(123)
+tf.random.set_seed(123)
 
 from keras import backend
 from keras.initializers import Constant
@@ -9,6 +9,7 @@ from keras.layers import Dense, Dropout, Embedding, Flatten, Input, \
 from keras.metrics import categorical_accuracy
 
 from constants import MAXLEN, MAXFEAT, FULL_INPUTS
+from utils import get_available_gpus
 
 def simple_model():
     model = Sequential()
@@ -56,10 +57,11 @@ def full_model(embedding_matrix=None, variant='lstm'):
         x = Conv1D(64, kernel_size=3, activation='relu')(embed)
         x = AveragePooling1D()(x)
         units = 128
-        if len(backend.tensorflow_backend._get_available_gpus()):
-            x = CuDNNLSTM(units)(x)
-        else:
-            x = LSTM(units)(x)
+        # support dropped in tf 2.0?
+        # if len(get_available_gpus()):
+        #     x = CuDNNLSTM(units)(x)
+        # else:
+        x = LSTM(units)(x)
     else:
         print('unrecognized model type "%s"' % variant)
 

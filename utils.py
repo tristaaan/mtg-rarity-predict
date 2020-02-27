@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 from gensim.models import KeyedVectors
+from tensorflow.python.client import device_lib
 from constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING, GLOVE_DIR
 
 def get_train_test_split(df, inputs, train_split=0.8):
@@ -205,3 +206,8 @@ def plot_confusion_matrix(cm, labels, method):
     fig.subplots_adjust(bottom=0.1, left=0.2)
     fig.savefig(fname)
     print('Confusion matrix written as: "%s"' % fname)
+
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']
