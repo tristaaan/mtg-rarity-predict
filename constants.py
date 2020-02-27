@@ -21,7 +21,7 @@ SETS = ['M10', 'ZEN', 'WWK', 'ROE',
         'EMN', 'KLD', 'AER', 'AKH',
         'HOU', 'XLN', 'RIX', 'DOM',
         'M19', 'GRN', 'RNA', 'WAR',
-        'M20', 'ELD', 'THD']
+        'M20', 'ELD', 'THB']
 
 GLOVE_DIR = '.' # directory for pre-trained Glove 6B files
 

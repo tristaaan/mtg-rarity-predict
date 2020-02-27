@@ -48,7 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('-tokenizer', '-t', help='the weights to use',
                         default=DEFAULT_TOKENIZER)
     parser.add_argument('-sets', help='sets to visualize', action='store',
-                        default=['GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THD'],
+                        default=['GRN', 'RNA', 'WAR', 'M20', 'ELD', 'THB'],
                         type=arg_set)
 
     args = parser.parse_args()
