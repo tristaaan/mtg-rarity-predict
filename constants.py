@@ -1,7 +1,7 @@
 from os import path
 
 MAXLEN = 74 # cut text after this many words
-MAXFEAT = 1730 # maximum features in embedding
+MAXFEAT = 1800 # maximum features in embedding
 
 RARITIES = ['common', 'uncommon', 'rare', 'mythic']
 FULL_INPUTS = ['type', 'C', 'R', 'U', 'B', 'G', 'W', 'X',  \
