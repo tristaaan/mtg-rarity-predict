@@ -156,9 +156,11 @@ def mana_cost_to_dict(cost):
 
 
 def process_set(card_set, set_name, df):
+    print('preprocessing %s' % set_name, end='\r')
+    added_cards = 0
     for jc in card_set:
-        if jc['image_url'] == None:
-            continue
+        # if jc['image_url'] == None:
+        #     continue
         c = mCard(jc)
         joined_type = join_type(c.types, c.subtypes)
         description = strip_text(c)
@@ -176,6 +178,11 @@ def process_set(card_set, set_name, df):
                        'image_url': c.image_url,
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
                        ignore_index=True)
+        added_cards += 1
+    if added_cards == 0:
+        print('-- No cards added for set %s!' % set_name)
+    else:
+        print('processed %s, %d added' % (set_name, added_cards))
     return df
 
 
@@ -188,7 +195,6 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=columns)
     for fname in files:
         set_name = path.basename(fname).split('.')[0]
-        print('preprocessing %s' % set_name)
         with open(fname, 'r') as card_set_f:
             card_set = json.load(card_set_f)
             df = process_set(card_set, set_name, df)
