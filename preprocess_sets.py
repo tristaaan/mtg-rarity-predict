@@ -54,7 +54,7 @@ def strip_text(card):
                 # sometimes "pay" is already there
                 ret = ret.replace('pay pay', 'pay')
                 # don't override adding mana
-                ret = ret.replace('add pay', '')
+                ret = ret.replace('add pay', 'add')
     return ret
 
 
