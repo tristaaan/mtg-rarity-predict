@@ -5,7 +5,7 @@ from os import path
 import numpy as np
 np.random.seed(123)
 import tensorflow as tf
-tf.set_random_seed(123)
+tf.random.set_seed(123)
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -22,8 +22,6 @@ from constants import MAXLEN, FULL_INPUTS, \
     DEFAULT_EMBEDDING, DEFAULT_TOKENIZER
 from utils import normalize_costs, make_folder
 
-config = tf.ConfigProto()
-tf.Session(config = config)
 
 def plot_graphs(history, size, variant):
     fig = plt.figure(figsize=(8,5))

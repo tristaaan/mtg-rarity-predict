@@ -3,6 +3,7 @@
 <head>
     <title>Predictions</title>
     <script type="text/javascript">
+        // lazy image loading
         document.addEventListener("DOMContentLoaded", () => {
             const lazyImages = [].slice.call(document.querySelectorAll('.card-img'));
 
@@ -22,11 +23,29 @@
         });
     </script>
     <style type="text/css">
+        body {
+            margin: 0;
+        }
+
+        nav {
+            position: fixed;
+            border-bottom: 1px solid black;
+            width: 100%;
+            background-color: #ddd;
+            margin: 0;
+            padding: 8px 14px;
+        }
+
+        .spacer {
+            height: 38px;
+        }
+
         .card-pred {
             float: left;
             border: 1px solid gray;
-            margin: 0.75em;
-            padding: 10px;
+            margin: 0.25em;
+            padding: 7px;
+            width: 264px;
         }
 
         .card-title {
@@ -40,18 +59,22 @@
         }
 
         .stat-item {
-            height: 40px;
             margin: 0 9px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
+            align-items: flex-start;
+        }
+
+        .stat-bar-container {
+          height: 30px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
         }
 
         .stat-bar {
             overflow: hidden;
-            display: block;
-            padding: 0 4px;
-            margin: 4px 0;
             background-color: blue;
             width: 20px;
         }
@@ -62,9 +85,39 @@
     </style>
 </head>
 <body>
+    <nav>
+        Set:
+        <select class="set-selector">
+            <option value="{{expansions[0]}}" selected>{{ expansions[0] }}</option>
+            {% for expansion in expansions[1:] %}
+                <option value="{{ expansion }}">{{ expansion }}</option>
+            {% endfor %}
+        </select>
+        <label>
+            Show only misclassified:
+            <input class="hide-correct" type="checkbox" name="corrector">
+        </label>
+        <label
+            class="distance-selector-label"
+            style="display: none;"
+        >
+            Distance:
+            <select class="distance-selector">
+                <option value="-1" selected >Any</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </label>
+    </nav>
+    <div class="spacer"></div>
     {% set rarities = ['c', 'u', 'r', 'm'] %}
     {% for pred in predictions %}
-        <div class="card-pred">
+        <div class="card-pred"
+            style="display: none;"
+            data-set="{{ cards[loop.index0].set }}"
+            data-distance="{{ (cards[loop.index0].rarity[0], rarities[pred|argmax]) | distance }}"
+        >
             <h4 class="card-title">{{ cards[loop.index0].name }}</h4>
             <img class="card-img"
                 src=""
@@ -72,7 +125,10 @@
             <div class="stats">
                 {% for p in pred %}
                     <div class="stat-item">
-                        <span class="stat-bar" style="height: {{ p*100 }}%;"></span>
+                        <div class="stat-bar-container">
+                            <span class="stat-bar" style="height: {{ p*100 }}%;">
+                            </span>
+                        </div>
                         <span>{{ rarities[loop.index0] }}: {{ '%0.01f%%' | format(p*100) }}</span>
                     </div>
                 {% endfor %}
@@ -80,5 +136,73 @@
             <span>Actual: <em>{{ cards[loop.index0].rarity }}</em></span>
         </div>
     {% endfor %}
+    <script type="text/javascript">
+        function hide(el) {
+            if (Array.isArray(el)) {
+                el.forEach((e) => { e.style.display = 'none'; });
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function show(el) {
+            if (Array.isArray(el)) {
+                el.forEach((e) => { e.style.display = ''; });
+            } else {
+                el.style.display = '';
+            }
+        }
+
+        // card filtering interface
+        const allCards = document.querySelectorAll('.card-pred');
+        function displayCard(card, criteria) {
+            if (criteria(card.dataset.set, card.dataset.distance)) {
+                show(card);
+            } else {
+                hide(card);
+            }
+        }
+
+        // hide or display cards based on form criteria
+        function updateFilter() {
+            const choosenSet = selector.value;
+            const showCorrect = !checkbox.checked;
+            const distance = parseInt(distanceSelector.value, 10);
+            let comp = null;
+            if (!showCorrect && distance !== -1) {
+                comp = (a,b) => a == distance;
+                show(distanceSelectorLabel);
+            } else if (!showCorrect) {
+                comp = (a,b) => a != 0;
+                show(distanceSelectorLabel);
+            } else {
+                hide(distanceSelectorLabel);
+            }
+            allCards.forEach((c) => {
+                displayCard(c, (set, distance) => {
+                    if (showCorrect) {
+                        return set === choosenSet;
+                    }
+                    return (
+                        set === choosenSet &&
+                        comp(parseInt(c.dataset.distance, 10))
+                    );
+                });
+            })
+        }
+
+        // define form controls, setup listeners to filter the cards
+        const selector = document.querySelector('.set-selector');
+        selector.addEventListener('change', updateFilter);
+
+        const checkbox = document.querySelector('.hide-correct');
+        checkbox.addEventListener('change', updateFilter);
+
+        const distanceSelector = document.querySelector('.distance-selector');
+        const distanceSelectorLabel = document.querySelector('.distance-selector-label');
+        distanceSelector.addEventListener('change', updateFilter);
+
+        updateFilter();
+    </script>
 </body>
 </html>

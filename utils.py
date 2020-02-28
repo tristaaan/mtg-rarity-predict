@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
 from gensim.models import KeyedVectors
+from tensorflow.python.client import device_lib
 from constants import MAXFEAT, RARITIES, DEFAULT_EMBEDDING, GLOVE_DIR
 
 def get_train_test_split(df, inputs, train_split=0.8):
@@ -53,12 +54,34 @@ def get_train_test_split(df, inputs, train_split=0.8):
     return (train_values, train_labels, test_values, test_labels)
 
 
+def get_all_cards(df, inputs):
+    rows = df.shape[0]
+    # Select same number of samples per class for train set, remaining go to test set
+    # num_of_train_inputs = int(rows * 0.8)
+    print('All cards: %d' % (rows))
+
+    all_df = df[inputs]
+
+    # encode spell type as integer.
+    spell_types = np.unique(df.loc[:,['type']].values).tolist()
+
+    # Split train and test datasets into features/labels
+    if 'text' in inputs and len(inputs) == 1:
+        all_df = text_split(all_df, spell_types)
+    else:
+        all_df = split(all_df, inputs, spell_types)
+
+    return all_df
+
+
 def text_split(df, spell_types):
-    # print(df[columns].values.tolist()[0:5])
     values = df['text'].str.split().values
-    labels = df['rarity'].values.ravel()
-    labels = np.array(list(map(label_array, labels)))
-    return (values, labels)
+    # extract labels if applicable
+    if 'rarity' in df.columns:
+        labels = df['rarity'].values.ravel()
+        labels = np.array(list(map(label_array, labels)))
+        return (values, labels)
+    return values
 
 
 def label_array(rarity):
@@ -74,10 +97,12 @@ def split(df, columns, spell_types):
     values = df[columns].values
     # convert spell type into numerical value
     for r in values:
-        # len(spell_types) // 2 to normalize spell type
         r[0] = spell_types.index(r[0]) - len(spell_types)//2
-    labels = df['rarity'].values.ravel()
-    return (values, labels)
+    # extract labels if applicable.
+    if 'rarity' in df.columns:
+        labels = df['rarity'].values.ravel()
+        return (values, labels)
+    return values
 
 
 def normalize_costs(df):
@@ -181,3 +206,8 @@ def plot_confusion_matrix(cm, labels, method):
     fig.subplots_adjust(bottom=0.1, left=0.2)
     fig.savefig(fname)
     print('Confusion matrix written as: "%s"' % fname)
+
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']

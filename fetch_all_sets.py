@@ -27,7 +27,7 @@ if __name__ == '__main__':
     dir_name = 'sets'
     make_folder(dir_name)
     for s in sets[start_index:]:
-        print('fetching %s...' % s)
+        print('fetching %s...' % s, end='\r')
         start = time()
         this_set = Card.where(set=s).all()
         current_set = []
@@ -35,5 +35,5 @@ if __name__ == '__main__':
             current_set.append(card_to_json(c))
         with open(path.join(dir_name, '%s.json' % s), 'w') as outfile:
             json.dump(current_set, outfile)
-        print('done %s in %0.2fs' % (s, time() - start))
+        print('fetched %s in %0.2fs' % (s, time() - start))
     print('done')
