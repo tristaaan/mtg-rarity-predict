@@ -6,7 +6,6 @@ import pandas as pd
 
 from os import path
 
-
 class mCard(object):
     def __init__(self, json_card):
         self.name     = json_card['name']
@@ -158,10 +157,13 @@ def mana_cost_to_dict(cost):
 def process_set(card_set, set_name, df):
     print('preprocessing %s' % set_name, end='\r')
     added_cards = 0
+    names = set()
     for jc in card_set:
-        # if jc['image_url'] == None:
-        #     continue
         c = mCard(jc)
+        # skip duplicates
+        if c.name in names:
+            continue
+
         joined_type = join_type(c.types, c.subtypes)
         description = strip_text(c)
         # skip if: non-allowed type, no description, or no mana cost.
@@ -170,6 +172,7 @@ def process_set(card_set, set_name, df):
             c.mana_cost == None:
             continue
 
+        # append card
         df = df.append({'set': set_name, 'name': c.name,
                        'rarity': c.rarity.lower(),
                        'text': description, 'type': joined_type,
@@ -178,7 +181,9 @@ def process_set(card_set, set_name, df):
                        'image_url': c.image_url,
                        'cmc': c.cmc, **mana_cost_to_dict(c.mana_cost)},
                        ignore_index=True)
+        names.add(c.name)
         added_cards += 1
+
     if added_cards == 0:
         print('-- No cards added for set %s!' % set_name)
     else:
