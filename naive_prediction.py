@@ -7,7 +7,7 @@ import matplotlib.colors as colors
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.svm import LinearSVC
 
@@ -79,5 +79,6 @@ if __name__ == '__main__':
     labels = np.unique(cards.loc[:,['rarity']].values).tolist()
     plot_confusion_matrix(cm, sorted_labels, method)
     print('accuracy with %s: %0.2f' % (method.upper(), acc))
-    # krasis = np.array([[2, 4, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0]])
-    # print(model.predict_proba(krasis))
+
+    report = classification_report(test_labels, predicted_labels, target_names=sorted_labels)
+    print(report)

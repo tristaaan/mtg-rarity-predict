@@ -31,7 +31,8 @@ def get_train_test_split(df, inputs, train_split=0.8):
     test_count  = int(min_rarity_count * test_split)
     print('train: %d, test: %d' % (train_count*4, test_count*4))
 
-    train_df, test_df = (pd.DataFrame(columns=inputs), pd.DataFrame(columns=inputs))
+    train_df = pd.DataFrame(columns=inputs)
+    test_df = pd.DataFrame(columns=inputs)
     for rarity in RARITIES:
         train_df = train_df.append(df.loc[df['rarity'] == rarity, inputs+['rarity']][:train_count], ignore_index=True)
         test_df  =  test_df.append(df.loc[df['rarity'] == rarity, inputs+['rarity']][train_count:train_count+test_count], ignore_index=True)
