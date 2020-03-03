@@ -34,6 +34,17 @@
             background-color: #ddd;
             margin: 0;
             padding: 8px 14px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+
+        }
+
+        .nav-right {
+            margin-right: 24px;
         }
 
         .spacer {
@@ -86,29 +97,36 @@
 </head>
 <body>
     <nav>
-        Set:
-        <select class="set-selector">
-            <option value="{{expansions[0]}}" selected>{{ expansions[0] }}</option>
-            {% for expansion in expansions[1:] %}
-                <option value="{{ expansion }}">{{ expansion }}</option>
-            {% endfor %}
-        </select>
-        <label>
-            Show only misclassified:
-            <input class="hide-correct" type="checkbox" name="corrector">
-        </label>
-        <label
-            class="distance-selector-label"
-            style="display: none;"
-        >
-            Distance:
-            <select class="distance-selector">
-                <option value="-1" selected >Any</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+        <div class="nav-left">
+            Set:
+            <select class="set-selector">
+                <option value="{{expansions[0]}}" selected>{{ expansions[0] }}</option>
+                {% for expansion in expansions[1:] %}
+                    <option value="{{ expansion }}">{{ expansion }}</option>
+                {% endfor %}
             </select>
-        </label>
+            <label>
+                Show only misclassified:
+                <input class="hide-correct" type="checkbox" name="corrector">
+            </label>
+            <label
+                class="distance-selector-label"
+                style="display: none;"
+            >
+                Distance:
+                <select class="distance-selector">
+                    <option value="-1" selected >Any</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </label>
+        </div>
+        <div class="nav-right">
+            <a href="https://github.com/tristaaan/mtg-rarity-predict" target="_blank">
+                About
+            </a>
+        </div>
     </nav>
     <div class="spacer"></div>
     {% set rarities = ['c', 'u', 'r', 'm'] %}
